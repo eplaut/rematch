@@ -51,6 +51,8 @@ class Instance(models.Model):
   type = models.CharField(max_length=16, choices=TYPE_CHOICES)
   offset = models.BigIntegerField()
 
+  matches = models.ManyToManyField('Instance', symmetrical=True, through=Match)
+
   def __unicode__(self):
     return "{} instance {} at {}".format(self.get_type_display(), self.offset,
                                          self.file.name)
@@ -81,6 +83,50 @@ class Vector(models.Model):
                                                 self.type_version,
                                                 self.instance)
   __str__ = __unicode__
+
+
+class Task(models.Model):
+  STATUS_PENDING = 'pending'
+  STATUS_STARTING = 'starting'
+  STATUS_POPULATING = 'populating'
+  STATUS_MATCHING = 'matching'
+  STATUS_FINISHING = 'finishing'
+  STATUS_DONE = 'done'
+  STATUS_CHOICES = ((STATUS_PENDING, "Pending in Queue..."),
+                    (STATUS_STARTING, "Started"),
+                    ('-' + STATUS_STARTING, "Failed Starting"),
+                    (STATUS_POPULATING, "Collecting Data..."),
+                    ('-' + STATUS_POPULATING, "Failed Collecting Data..."),
+                    (STATUS_MATCHING, "Comparing Elements..."),
+                    ('-' + STATUS_MATCHING, "Failed Comparing Elements..."),
+                    (STATUS_FINISHING, "Handling New Elements..."),
+                    ('-' + STATUS_FINISHING, "Failed Handling New Elements..."),
+                    (STATUS_DONE, "Done!"),
+                    ('-' + STATUS_DONE, "General Failure"))
+  ACTION_COMMIT = "commit"
+  ACTION_MATCH = "match"
+  ACTION_UPDATE = "update"
+  ACTION_CLUSTER = "cluster"
+  ACTION_CHOICES = ((ACTION_COMMIT, "Commit"),
+                    (ACTION_MATCH, "Match"),
+                    (ACTION_UPDATE, "Update"),
+                    (ACTION_CLUSTER, "Cluster"))
+
+  # store matched objects
+  created = models.DateTimeField(auto_now_add=True)
+  started = models.DateTimeField()
+  finished = models.DateTimeField()
+
+  owner = models.ForeignKey(User, db_index=True)
+  status = models.CharField(max_length=16, choices=STATUS_CHOICES)
+  action = models.CharField(max_length=16, choices=ACTION_CHOICES)
+
+
+class Match(models.Model):
+  task = models.ForeignKey(Task, db_index=True, related_name='matches')
+
+  instance_source = models.ForeignKey(Instance)
+  instance_target = models.ForeignKey(Instance)
 
 
 #
