@@ -51,7 +51,7 @@ class Instance(models.Model):
   type = models.CharField(max_length=16, choices=TYPE_CHOICES)
   offset = models.BigIntegerField()
 
-  matches = models.ManyToManyField('Instance', symmetrical=True, through=Match)
+  matches = models.ManyToManyField('self', symmetrical=True)
 
   def __unicode__(self):
     return "{} instance {} at {}".format(self.get_type_display(), self.offset,
@@ -96,11 +96,11 @@ class Task(models.Model):
                     (STATUS_STARTING, "Started"),
                     ('-' + STATUS_STARTING, "Failed Starting"),
                     (STATUS_POPULATING, "Collecting Data..."),
-                    ('-' + STATUS_POPULATING, "Failed Collecting Data..."),
+                    ('-' + STATUS_POPULATING, "Failed Collecting Data"),
                     (STATUS_MATCHING, "Comparing Elements..."),
-                    ('-' + STATUS_MATCHING, "Failed Comparing Elements..."),
+                    ('-' + STATUS_MATCHING, "Failed Comparing Elements"),
                     (STATUS_FINISHING, "Handling New Elements..."),
-                    ('-' + STATUS_FINISHING, "Failed Handling New Elements..."),
+                    ('-' + STATUS_FINISHING, "Failed Handling New Elements"),
                     (STATUS_DONE, "Done!"),
                     ('-' + STATUS_DONE, "General Failure"))
   ACTION_COMMIT = "commit"
@@ -122,11 +122,8 @@ class Task(models.Model):
   action = models.CharField(max_length=16, choices=ACTION_CHOICES)
 
 
-class Match(models.Model):
+class Match(Instance.matches.through()):
   task = models.ForeignKey(Task, db_index=True, related_name='matches')
-
-  instance_source = models.ForeignKey(Instance)
-  instance_target = models.ForeignKey(Instance)
 
 
 #
