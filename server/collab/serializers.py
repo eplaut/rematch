@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from collab.models import Project, File, Instance, Vector
+from collab.models import Project, File, Task, Instance, Vector
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -20,6 +20,22 @@ class FileSerializer(serializers.ModelSerializer):
     model = File
     fields = ('id', 'created', 'owner', 'project', 'name', 'description',
               'md5hash', 'file', 'instances')
+
+
+class TaskSerializer(serializers.ModelSerializer):
+  owner = serializers.ReadOnlyField(source='owner.username')
+  task_id = serializers.ReadOnlyField()
+  created = serializers.ReadOnlyField()
+  finished = serializers.ReadOnlyField()
+  status = serializers.ReadOnlyField()
+
+  project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all(),
+                                               allow_null=True)
+
+  class Meta:
+    model = Task
+    fields = ('id', 'task_id', 'created', 'finished', 'owner', 'status',
+              'action', 'project', 'file')
 
 
 class InstanceSerializer(serializers.ModelSerializer):

@@ -87,22 +87,13 @@ class Vector(models.Model):
 
 class Task(models.Model):
   STATUS_PENDING = 'pending'
-  STATUS_STARTING = 'starting'
-  STATUS_POPULATING = 'populating'
-  STATUS_MATCHING = 'matching'
-  STATUS_FINISHING = 'finishing'
+  STATUS_STARTED = 'started'
   STATUS_DONE = 'done'
+  STATUS_FAILED = 'failed'
   STATUS_CHOICES = ((STATUS_PENDING, "Pending in Queue..."),
-                    (STATUS_STARTING, "Started"),
-                    ('-' + STATUS_STARTING, "Failed Starting"),
-                    (STATUS_POPULATING, "Collecting Data..."),
-                    ('-' + STATUS_POPULATING, "Failed Collecting Data"),
-                    (STATUS_MATCHING, "Comparing Elements..."),
-                    ('-' + STATUS_MATCHING, "Failed Comparing Elements"),
-                    (STATUS_FINISHING, "Handling New Elements..."),
-                    ('-' + STATUS_FINISHING, "Failed Handling New Elements"),
+                    (STATUS_STARTED, "Started"),
                     (STATUS_DONE, "Done!"),
-                    ('-' + STATUS_DONE, "General Failure"))
+                    (STATUS_FAILED, "Failure"))
   ACTION_COMMIT = "commit"
   ACTION_MATCH = "match"
   ACTION_UPDATE = "update"
@@ -112,14 +103,20 @@ class Task(models.Model):
                     (ACTION_UPDATE, "Update"),
                     (ACTION_CLUSTER, "Cluster"))
 
+  # TODO: to uuid field
+  task_id = models.UUIDField(db_index=True, unique=True, editable=False)
+
   # store matched objects
   created = models.DateTimeField(auto_now_add=True)
-  started = models.DateTimeField()
-  finished = models.DateTimeField()
+  finished = models.DateTimeField(null=True)
 
   owner = models.ForeignKey(User, db_index=True)
-  status = models.CharField(max_length=16, choices=STATUS_CHOICES)
+  status = models.CharField(default=STATUS_PENDING, max_length=16,
+                            choices=STATUS_CHOICES)
   action = models.CharField(max_length=16, choices=ACTION_CHOICES)
+
+  project = models.ForeignKey(Project, related_name='tasks')
+  file = models.ForeignKey(File, related_name='tasks')
 
 
 class Match(Instance.matches.through()):
