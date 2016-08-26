@@ -1,6 +1,6 @@
 import idaapi
 import idc
-from idautils import Functions
+import idautils
 
 from ..idasix import QtCore, QtWidgets
 
@@ -9,16 +9,17 @@ from .. import network, netnode
 from . import base
 
 
-class MatchAllAction(base.BoundFileAction):
-  name = "&Match all"
-  group = "Match"
-
+class MatchAction(base.BoundFileAction):
   def activate(self, ctx):
-    self.function_gen = enumerate(Functions())
+    function_gen = self.get_functions()
+    if not function_gen:
+      return
+
+    self.function_gen = enumerate(function_gen)
     pd = QtWidgets.QProgressDialog(labelText="Processing...\nYou may continue "
                                              "working but avoid ground-"
                                              "breaking changes.",
-                                   minimum=0, maximum=len(list(Functions())))
+                                   maximum=self.get_functions_count())
     self.progress = pd
     self.progress.canceled.connect(self.cancel)
 
@@ -58,20 +59,24 @@ class MatchAllAction(base.BoundFileAction):
     print(r)
 
 
-# TODO: inherit logic in MatchAllAction
-class MatchFunctionAction(base.BoundFileAction):
+class MatchAllAction(MatchAction):
+  name = "&Match all"
+  group = "Match"
+
+  def get_functions(self):
+    return idautils.Functions()
+
+  def get_functions_count(self):
+    return len(set(self.get_functions))
+
+
+class MatchFunctionAction(MatchAction):
   name = "Match &Function"
   group = "Match"
 
-  @staticmethod
-  def activate(ctx):
-    file_id = netnode.bound_file_id
+  def get_functions(self):
+    return idaapi.choose_func("Choose function to match with database",
+                              idc.ScreenEA())
 
-    function = idaapi.choose_func("Choose function to match with database",
-                                  idc.ScreenEA())
-    if function is None:
-      return
-
-    data = instances.FunctionInstance(file_id, function.startEA)
-    network.query("POST", "collab/instances/", params=data.serialize(),
-                  json=True)
+  def get_functions_count(self):
+    return 1
