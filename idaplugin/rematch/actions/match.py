@@ -10,6 +10,12 @@ from . import base
 
 
 class MatchAction(base.BoundFileAction):
+  def __init__(self, *args, **kwargs):
+    super(MatchAction, self).__init__(*args, **kwargs)
+    self.function_gen = None
+    self.pbar = None
+    self.timer = QtCore.QTimer()
+
   def activate(self, ctx):
     function_gen = self.get_functions()
     if not function_gen:
@@ -20,14 +26,13 @@ class MatchAction(base.BoundFileAction):
                                              "working but avoid ground-"
                                              "breaking changes.",
                                    maximum=self.get_functions_count())
-    self.progress = pd
-    self.progress.canceled.connect(self.cancel)
+    self.pbar = pd
+    self.pbar.canceled.connect(self.cancel)
 
-    self.timer = QtCore.QTimer()
     self.timer.timeout.connect(self.perform_upload)
     self.timer.start()
 
-    self.progress.accepted.connect(self.accepted_upload)
+    self.pbar.accepted.connect(self.accepted_upload)
 
   def perform_upload(self):
     try:
@@ -38,9 +43,9 @@ class MatchAction(base.BoundFileAction):
                     json=True)
 
       i = i + 1
-      self.progress.setValue(i)
-      if (i >= self.progress.maximum()):
-        self.progress.accept()
+      self.pbar.setValue(i)
+      if i >= self.pbar.maximum():
+        self.pbar.accept()
     except:
       self.timer.stop()
       raise
