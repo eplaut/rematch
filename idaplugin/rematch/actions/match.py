@@ -63,20 +63,24 @@ class MatchAllAction(MatchAction):
   name = "&Match all"
   group = "Match"
 
-  def get_functions(self):
+  @staticmethod
+  def get_functions():
     return idautils.Functions()
 
-  def get_functions_count(self):
-    return len(set(self.get_functions))
+  @classmethod
+  def get_functions_count(cls):
+    return len(set(cls.get_functions()))
 
 
 class MatchFunctionAction(MatchAction):
   name = "Match &Function"
   group = "Match"
 
-  def get_functions(self):
+  @staticmethod
+  def get_functions():
     return idaapi.choose_func("Choose function to match with database",
                               idc.ScreenEA())
 
-  def get_functions_count(self):
+  @staticmethod
+  def get_functions_count():
     return 1
