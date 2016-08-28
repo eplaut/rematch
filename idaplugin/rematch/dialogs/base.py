@@ -15,9 +15,38 @@ class BaseDialog(QtWidgets.QDialog):
     self.exception_handler = exception_handler
     self.response = None
     self.statusLbl = None
+    self.radio_groups = {}
 
     self.base_layout = QtWidgets.QVBoxLayout()
     self.setLayout(self.base_layout)
+
+  def add_radio_group(self, title, *radios, **kwargs):
+    radiogroup = QtWidgets.QButtonGroup()
+    groupbox = QtWidgets.QGroupBox(title)
+    layout = QtWidgets.QVBoxLayout()
+    checked = kwargs.pop('checked', None)
+
+    self.radio_groups[radiogroup] = []
+    for i, radio in enumerate(radios):
+      radio_name, id = radio
+      radio_widget = QtWidgets.QRadioButton(radio_name)
+
+      # if checked is supplied, set correct radio as checked
+      # else set first radio as checked`
+      if (checked is None and i == 0) or checked == id:
+        radio_widget.setChecked(True)
+
+      radiogroup.addButton(radio_widget, i)
+      layout.addWidget(radio_widget)
+      self.radio_groups[radiogroup].append(id)
+    groupbox.setLayout(layout)
+    self.layout.addWidget(groupbox)
+
+    return radiogroup
+
+  def get_radio_result(self, group):
+    group_ids = self.radio_groups[group]
+    return group_ids[group.checkedId()]
 
   def bottom_layout(self, ok_text="&Ok", cencel_text="&Cancel"):
     self.statusLbl = QtWidgets.QLabel()

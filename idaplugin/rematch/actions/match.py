@@ -4,19 +4,30 @@ import idautils
 
 from ..idasix import QtCore, QtWidgets
 
+from ..dialogs.match import MatchDialog
+
 from .. import instances
 from .. import network, netnode
 from . import base
 
 
 class MatchAction(base.BoundFileAction):
+  name = "&Match"
+
   def __init__(self, *args, **kwargs):
     super(MatchAction, self).__init__(*args, **kwargs)
     self.function_gen = None
     self.pbar = None
     self.timer = QtCore.QTimer()
+    self.source = None
+    self.target = None
+    self.methods = []
 
   def activate(self, ctx):
+    dialog = MatchDialog()
+    self.source, self.target, self.methods = dialog.get()
+    print(self.source, self.target, self.methods)
+
     function_gen = self.get_functions()
     if not function_gen:
       return
@@ -62,30 +73,3 @@ class MatchAction(base.BoundFileAction):
                    'project': None}
     r = network.query("POST", "collab/tasks/", params=task_params, json=True)
     print(r)
-
-
-class MatchAllAction(MatchAction):
-  name = "&Match all"
-  group = "Match"
-
-  @staticmethod
-  def get_functions():
-    return idautils.Functions()
-
-  @classmethod
-  def get_functions_count(cls):
-    return len(set(cls.get_functions()))
-
-
-class MatchFunctionAction(MatchAction):
-  name = "Match &Function"
-  group = "Match"
-
-  @staticmethod
-  def get_functions():
-    return idaapi.choose_func("Choose function to match with database",
-                              idc.ScreenEA())
-
-  @staticmethod
-  def get_functions_count():
-    return 1
