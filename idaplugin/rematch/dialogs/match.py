@@ -1,11 +1,10 @@
 try:
   from PyQt5 import QtWidgets
-except:
+except ImportError:
   from PySide import QtGui
   QtWidgets = QtGui
 
 from . import base
-from .. import network, netnode
 
 
 class MatchDialog(base.BaseDialog):
