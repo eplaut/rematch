@@ -1,7 +1,3 @@
-import idaapi
-import idc
-import idautils
-
 from ..idasix import QtCore, QtWidgets
 
 from ..dialogs.match import MatchDialog

@@ -28,17 +28,17 @@ class BaseDialog(QtWidgets.QDialog):
 
     self.radio_groups[radiogroup] = []
     for i, radio in enumerate(radios):
-      radio_name, id = radio
+      radio_name, radio_id = radio
       radio_widget = QtWidgets.QRadioButton(radio_name)
 
       # if checked is supplied, set correct radio as checked
       # else set first radio as checked`
-      if (checked is None and i == 0) or checked == id:
+      if (checked is None and i == 0) or checked == radio_id:
         radio_widget.setChecked(True)
 
       radiogroup.addButton(radio_widget, i)
       layout.addWidget(radio_widget)
-      self.radio_groups[radiogroup].append(id)
+      self.radio_groups[radiogroup].append(radio_id)
     groupbox.setLayout(layout)
     self.layout.addWidget(groupbox)
 
