@@ -1,4 +1,7 @@
 from ..idasix import QtCore, QtWidgets
+import idautils
+import idaapi
+import idc
 
 from ..dialogs.match import MatchDialog
 
@@ -19,9 +22,45 @@ class MatchAction(base.BoundFileAction):
     self.target = None
     self.methods = []
 
+  def get_functions(self):
+    if self.source == 'idb':
+      return idautils.Functions()
+    elif self.source == 'user':
+      raise NotImplementedError("All user functions are not currently "
+                                "supported as source value.")
+    elif self.source == 'single':
+      return idaapi.choose_func("Choose function to match with database",
+                                idc.ScreenEA())
+    elif self.source == 'range':
+      raise NotImplementedError("Range of addresses is not currently "
+                                "supported as source value.")
+
+    raise ValueError("Invalid source value received from MatchDialog: {}"
+                     "".format(self.source))
+
+  def get_functions_count(self):
+    if self.source == 'idb':
+      return len(set(idautils.Functions()))
+    elif self.source == 'user':
+      raise NotImplementedError("All user functions are not currently "
+                                "supported as source value.")
+    elif self.soruce == 'single':
+      return 1
+    elif self.source == 'range':
+      raise NotImplementedError("Range of addresses is not currently "
+                                "supported as source value.")
+
+    raise ValueError("Invalid source value received from MatchDialog: {}"
+                     "".format(self.source))
+
   def activate(self, ctx):
     dialog = MatchDialog()
-    self.source, self.target, self.methods = dialog.get()
+    data, _, result = dialog.get()
+
+    if result is None:
+      return
+
+    self.source, self.target, self.methods = data
     print(self.source, self.target, self.methods)
 
     function_gen = self.get_functions()
