@@ -29,8 +29,11 @@ class MatchAction(base.BoundFileAction):
       raise NotImplementedError("All user functions are not currently "
                                 "supported as source value.")
     elif self.source == 'single':
-      return idaapi.choose_func("Choose function to match with database",
+      func = idaapi.choose_func("Choose function to match with database",
                                 idc.ScreenEA())
+      if not func:
+        return None
+      return [func.startEA]
     elif self.source == 'range':
       raise NotImplementedError("Range of addresses is not currently "
                                 "supported as source value.")
@@ -44,7 +47,7 @@ class MatchAction(base.BoundFileAction):
     elif self.source == 'user':
       raise NotImplementedError("All user functions are not currently "
                                 "supported as source value.")
-    elif self.soruce == 'single':
+    elif self.source == 'single':
       return 1
     elif self.source == 'range':
       raise NotImplementedError("Range of addresses is not currently "
