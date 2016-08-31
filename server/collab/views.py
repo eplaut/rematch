@@ -31,9 +31,13 @@ class ProjectViewSet(ViewSetOwnerMixin, viewsets.ModelViewSet):
   serializer_class = ProjectSerializer
 
 
-class FileViewSet(ViewSetOwnerMixin, viewsets.ModelViewSet):
+class FileViewSet(viewsets.ModelViewSet):
   queryset = File.objects.all()
   serializer_class = FileSerializer
+
+  def perform_create(self, serializer):
+    serializer.save(owner=self.request.user,
+                    file=serializer.validated_data['instance'].file)
 
 
 class TaskViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,

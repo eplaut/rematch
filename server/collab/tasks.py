@@ -1,17 +1,27 @@
 from django.utils.timezone import now
-from models import Task
+from models import Task, Vector
 
 from celery import shared_task
 
 
 @shared_task
 def match(file_id, project_id):
-  task = Task.objects.filter(task_id=match.request.id)
-
   # recording the task has started
+  task = Task.objects.filter(task_id=match.request.id)
   task.update(status=Task.STATUS_STARTED)
 
   print("Running task {}".format(match.request.id))
+  # TODO: order should be important here
+  vector_types = [t[0] for t in Vector.TYPE_CHOICES]
+  for vector_type in vector_types:
+      print(vector_type)
+      vectors = Vector.objects.filter(type=vector_type)
+      source_vectors = vectors.filter(file_id=file_id)
+      target_vectors = vectors.filter(file_id__project_id=project_id,
+                                      file_id__not=file_id)
+      print(source_vectors)
+      print(target_vectors)
+      print(source_vectors.all())
+      print(target_vectors.all())
 
-  # TODO: finished=now
   task.update(status=Task.STATUS_DONE, finished=now())
