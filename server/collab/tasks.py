@@ -27,6 +27,6 @@ def match(file_id, project_id):
       print(source_vectors.all())
       print(target_vectors.all())
 
-      task.update(progress=F('progress')+1)
+      task.update(progress=F('progress') + 1)
 
   task.update(status=Task.STATUS_DONE, finished=now())
