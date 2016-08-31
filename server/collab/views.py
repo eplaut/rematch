@@ -31,13 +31,9 @@ class ProjectViewSet(ViewSetOwnerMixin, viewsets.ModelViewSet):
   serializer_class = ProjectSerializer
 
 
-class FileViewSet(viewsets.ModelViewSet):
+class FileViewSet(ViewSetOwnerMixin, viewsets.ModelViewSet):
   queryset = File.objects.all()
   serializer_class = FileSerializer
-
-  def perform_create(self, serializer):
-    serializer.save(owner=self.request.user,
-                    file=serializer.validated_data['instance'].file)
 
 
 class TaskViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
@@ -72,3 +68,6 @@ class VectorViewSet(ViewSetManyAllowedMixin, viewsets.ModelViewSet):
   queryset = Vector.objects.all()
   serializer_class = VectorSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+  def perform_create(self, serializer):
+    serializer.save(file=serializer.validated_data['instance'].file)

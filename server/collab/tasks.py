@@ -1,5 +1,5 @@
 from django.utils.timezone import now
-from djangp.db.models import F
+from django.db.models import F
 from models import Task, Vector
 
 from celery import shared_task
