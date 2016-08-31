@@ -119,6 +119,9 @@ class Task(models.Model):
   project = models.ForeignKey(Project, related_name='tasks')
   file = models.ForeignKey(File, related_name='tasks')
 
+  progress = models.PositiveSmallIntegerField(default=0)
+  progress_max = models.PositiveSmallIntegerField(default=0)
+
 
 class Match(Instance.matches.through()):
   task = models.ForeignKey(Task, db_index=True, related_name='matches')
