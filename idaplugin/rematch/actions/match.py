@@ -21,6 +21,8 @@ class MatchAction(base.BoundFileAction):
     self.source = None
     self.target = None
     self.methods = []
+    self.task_id = None
+    self.pbar = QtWidgets.QProgressDialog()
 
   def get_functions(self):
     if self.source == 'idb':
@@ -64,24 +66,21 @@ class MatchAction(base.BoundFileAction):
       return
 
     self.source, self.target, self.methods = data
-    print(self.source, self.target, self.methods)
 
     function_gen = self.get_functions()
     if not function_gen:
       return
 
     self.function_gen = enumerate(function_gen)
-    pd = QtWidgets.QProgressDialog(labelText="Processing...\nYou may continue "
-                                             "working but avoid ground-"
-                                             "breaking changes.",
-                                   maximum=self.get_functions_count())
-    self.pbar = pd
+    self.pbar.setLabel("Processing IDB... You may continue working,\nbut "
+                       "plese avoid making any ground-breaking changes.")
+    self.pbar.setRange(0, self.get_functions_count())
+    self.pbar.setValue(0)
     self.pbar.canceled.connect(self.cancel)
+    self.pbar.accepted.connect(self.accepted_upload)
 
     self.timer.timeout.connect(self.perform_upload)
     self.timer.start()
-
-    self.pbar.accepted.connect(self.accepted_upload)
 
   def perform_upload(self):
     try:
@@ -106,8 +105,19 @@ class MatchAction(base.BoundFileAction):
     self.timer.stop()
     self.timer.disconnect()
 
-    # TODO: ask for project to compare against
-    task_params = {'action': 'commit', 'file': netnode.bound_file_id,
-                   'project': None}
-    r = network.query("POST", "collab/tasks/", params=task_params, json=True)
-    print(r)
+    params = {'action': 'commit', 'file': netnode.bound_file_id,
+              'project': None}
+    r = network.query("POST", "collab/tasks/", params=params, json=True)
+    self.task_id = r['id']
+
+    self.timer.timeout.connect(self.task_progress)
+    self.timer.start(1000)
+
+  def task_progress(self):
+    r = network.query("GET", "collab/tasks", params={'id': self.task_id},
+                      json=True)
+
+    self.pbar.setLabel("Waiting for remote matching... You may continue "
+                       "working without any limitations.")
+    self.pbar.setRange(0, int(r['progress_maximum']))
+    self.pbar.setValue(int(r['progress']))
