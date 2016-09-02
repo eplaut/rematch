@@ -20,8 +20,8 @@ def match(file_id, project_id):
       print(vector_type)
       vectors = Vector.objects.filter(type=vector_type)
       source_vectors = vectors.filter(file_id=file_id)
-      target_vectors = vectors.filter(file_id__project_id=project_id,
-                                      file_id__not=file_id)
+      target_vectors = vectors.filter(file_id__project_id=project_id)
+      target_vectors = target_vectors.exclude(file_id=file_id)
       print(source_vectors)
       print(target_vectors)
       print(source_vectors.all())
