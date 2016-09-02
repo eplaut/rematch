@@ -95,7 +95,7 @@ class MatchAction(base.BoundFileAction):
       self.pbar.setValue(i)
       if i >= self.pbar.maximum():
         self.pbar.accept()
-    except:
+    except Exception:
       self.cancel_upload()
       raise
 
@@ -130,8 +130,9 @@ class MatchAction(base.BoundFileAction):
 
       self.pbar.setRange(0, int(r['progress_max']))
       self.pbar.setValue(int(r['progress']))
-    except:
+    except Exception:
       self.cancel_task()
+      raise
 
   def cancel_task(self):
     self.timer.stop()
