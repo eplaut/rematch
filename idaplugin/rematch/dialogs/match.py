@@ -40,24 +40,8 @@ class MatchDialog(base.BaseDialog):
     self.layout.addWidget(methodGbx)
 
     self.statusLbl = QtWidgets.QLabel()
-    self.layout.addWidget(self.statusLbl)
 
-    startBtn = QtWidgets.QPushButton("&Start matching")
-    startBtn.setDefault(True)
-    cancelBtn = QtWidgets.QPushButton("&Cancel")
-    SizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed,
-                                       QtWidgets.QSizePolicy.Fixed)
-    startBtn.setSizePolicy(SizePolicy)
-    cancelBtn.setSizePolicy(SizePolicy)
-    buttonLyt = QtWidgets.QHBoxLayout()
-    buttonLyt.addWidget(startBtn)
-    buttonLyt.addWidget(cancelBtn)
-    self.layout.addLayout(buttonLyt)
-
-    self.setLayout(self.layout)
-
-    startBtn.clicked.connect(self.accept)
-    cancelBtn.clicked.connect(self.reject)
+    self.bottom_layout(self.accept, "&Start matching")
 
   def data(self):
     source = self.get_radio_result(self.sourceGrp)
