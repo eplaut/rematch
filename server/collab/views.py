@@ -5,6 +5,7 @@ from collab.serializers import (ProjectSerializer, FileSerializer,
                                 InstanceSerializer, VectorSerializer)
 from collab.permissions import IsOwnerOrReadOnly
 from collab import tasks
+from utils import ViewSetTemplateMixin
 
 
 class ViewSetOwnerMixin(object):
@@ -26,12 +27,14 @@ class ViewSetManyAllowedMixin(object):
     return super(ViewSetManyAllowedMixin, self).get_serializer(*args, **kwargs)
 
 
-class ProjectViewSet(ViewSetOwnerMixin, viewsets.ModelViewSet):
+class ProjectViewSet(ViewSetOwnerMixin, ViewSetTemplateMixin,
+                     viewsets.ModelViewSet):
   queryset = Project.objects.all()
   serializer_class = ProjectSerializer
 
 
-class FileViewSet(ViewSetOwnerMixin, viewsets.ModelViewSet):
+class FileViewSet(ViewSetOwnerMixin, ViewSetTemplateMixin,
+                  viewsets.ModelViewSet):
   queryset = File.objects.all()
   serializer_class = FileSerializer
 
@@ -56,12 +59,13 @@ class TaskViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
 
 
 class InstanceViewSet(ViewSetManyAllowedMixin, ViewSetOwnerMixin,
-                      viewsets.ModelViewSet):
+                      ViewSetTemplateMixin, viewsets.ModelViewSet):
   queryset = Instance.objects.all()
   serializer_class = InstanceSerializer
 
 
-class VectorViewSet(ViewSetManyAllowedMixin, viewsets.ModelViewSet):
+class VectorViewSet(ViewSetManyAllowedMixin, ViewSetTemplateMixin,
+                    viewsets.ModelViewSet):
   queryset = Vector.objects.all()
   serializer_class = VectorSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
