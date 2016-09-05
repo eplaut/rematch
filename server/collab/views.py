@@ -45,17 +45,11 @@ class TaskViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                         IsOwnerOrReadOnly)
 
   def perform_create(self, serializer):
-    if not serializer.validated_data['project']:
-      project = serializer.validated_data['file'].project
-      serializer.validated_data['project'] = project
-
-    # if no project, let serializer.save fail on none project
-    if serializer.validated_data['project']:
-      result = tasks.match.delay(serializer.validated_data['file'].id,
-                                 serializer.validated_data['project'].id)
-      serializer.save(owner=self.request.user, task_id=result.id)
-    else:
-      serializer.save(owner=self.request.user, task_id='')
+    file_id = serializer.validated_data['file'].id
+    project = serializer.validated_data['project']
+    project_id = project.id if project else None
+    result = tasks.match.delay(file_id, project_id)
+    serializer.save(owner=self.request.user, task_id=result.id)
 
 
 class InstanceViewSet(ViewSetManyAllowedMixin, ViewSetOwnerMixin,
