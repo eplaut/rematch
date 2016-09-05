@@ -11,8 +11,6 @@ class MatchDialog(base.BaseDialog):
   def __init__(self, **kwargs):
     super(MatchDialog, self).__init__(title="Match", **kwargs)
 
-    self.layout = QtWidgets.QVBoxLayout()
-
     self.sourceGrp = self.add_radio_group("Match source",
                                           ("Entire IDB", 'idb'),
                                           ("User functions", 'user'),
@@ -37,9 +35,7 @@ class MatchDialog(base.BaseDialog):
 
     methodGbx = QtWidgets.QGroupBox("Match methods")
     methodGbx.setLayout(methodLyt)
-    self.layout.addWidget(methodGbx)
-
-    self.statusLbl = QtWidgets.QLabel()
+    self.base_layout.addWidget(methodGbx)
 
     self.bottom_layout(self.accept, "&Start matching")
 

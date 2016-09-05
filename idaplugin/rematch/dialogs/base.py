@@ -40,7 +40,7 @@ class BaseDialog(QtWidgets.QDialog):
       layout.addWidget(radio_widget)
       self.radio_groups[radiogroup].append(radio_id)
     groupbox.setLayout(layout)
-    self.layout.addWidget(groupbox)
+    self.base_layout.addWidget(groupbox)
 
     return radiogroup
 
