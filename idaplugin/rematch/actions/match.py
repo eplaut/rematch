@@ -128,8 +128,13 @@ class MatchAction(base.BoundFileAction):
       r = network.query("GET", "collab/tasks/{}/".format(self.task_id),
                         json=True)
 
-      self.pbar.setRange(0, int(r['progress_max']))
-      self.pbar.setValue(int(r['progress']))
+      progress_max = int(r['progress_max'])
+      progress = int(r['progress'])
+      self.pbar.setRange(0, progress_max)
+      self.pbar.setValue(progress)
+
+      if progress >= progress_max:
+        self.pbar.accept()
     except Exception:
       self.cancel_task()
       raise
