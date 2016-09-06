@@ -23,6 +23,7 @@ class MatchAction(base.BoundFileAction):
     self.methods = []
     self.task_id = None
     self.pbar = None
+    self.instance_set = []
 
   def get_functions(self):
     if self.source == 'idb':
@@ -86,18 +87,31 @@ class MatchAction(base.BoundFileAction):
   def perform_upload(self):
     try:
       i, offset = self.function_gen.next()
+    except StopIteration:
+      self.timer.stop()
+      self.timer.disconnect()
+      return
 
+    try:
       func = instances.FunctionInstance(netnode.bound_file_id, offset)
-      network.query("POST", "collab/instances/", params=func.serialize(),
-                    json=True)
+      self.instance_set.append(func.serialize())
 
-      i = i + 1
-      self.pbar.setValue(i)
-      if i >= self.pbar.maximum():
-        self.pbar.accept()
+      if len(self.instance_set) >= 100:
+        network.delayed_query("POST", "collab/instances/",
+                              params=self.instance_set, json=True,
+                              callback=self.progress_advance)
+        self.instance_set = []
+        self.pbar.setMaximum(self.pbar.maximum() + 1)
+      self.progress_advance()
     except Exception:
       self.cancel_upload()
       raise
+
+  def progress_advance(self, result=None):
+      new_value = self.pbar.value() + 1
+      self.pbar.setValue(new_value)
+      if new_value >= self.pbar.maximum():
+        self.pbar.accept()
 
   def cancel_upload(self):
     self.timer.stop()
