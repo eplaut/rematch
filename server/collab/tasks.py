@@ -1,6 +1,7 @@
 from django.utils.timezone import now
 from django.db.models import F
 from models import Task, Vector
+import vectors
 
 from celery import shared_task
 
@@ -16,16 +17,17 @@ def match(file_id, project_id):
 
   print("Running task {}".format(match.request.id))
   # TODO: order might be important here
-  for vector_type in vector_types:
+  for vector_type in vectors.vector_list:
       print(vector_type)
-      vectors = Vector.objects.filter(type=vector_type)
-      source_vectors = vectors.filter(file_id=file_id)
-      target_vectors = vectors.filter(file_id__project_id=project_id)
+      vectors_filter = Vector.objects.filter(type=vector_type.id)
+      source_vectors = vectors_filter.filter(file_id=file_id)
+      target_vectors = vectors_filter.filter(file_id__project_id=project_id)
       target_vectors = target_vectors.exclude(file_id=file_id)
       print(source_vectors)
       print(target_vectors)
       print(source_vectors.all())
       print(target_vectors.all())
+      vector_type.match(source_vectors, target_vectors)
 
       task.update(progress=F('progress') + 1)
 
