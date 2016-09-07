@@ -96,10 +96,11 @@ class MatchAction(base.BoundFileAction):
       raise
 
   def progress_advance(self, result=None):
-      new_value = self.pbar.value() + 1
-      self.pbar.setValue(new_value)
-      if new_value >= self.pbar.maximum():
-        self.pbar.accept()
+    del result
+    new_value = self.pbar.value() + 1
+    self.pbar.setValue(new_value)
+    if new_value >= self.pbar.maximum():
+      self.pbar.accept()
 
   def cancel_upload(self):
     self.timer.stop()
