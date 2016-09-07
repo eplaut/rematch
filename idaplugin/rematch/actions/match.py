@@ -45,19 +45,7 @@ class MatchAction(base.BoundFileAction):
                      "".format(self.source))
 
   def get_functions_count(self):
-    if self.source == 'idb':
-      return len(set(idautils.Functions()))
-    elif self.source == 'user':
-      raise NotImplementedError("All user functions are not currently "
-                                "supported as source value.")
-    elif self.source == 'single':
-      return 1
-    elif self.source == 'range':
-      raise NotImplementedError("Range of addresses is not currently "
-                                "supported as source value.")
-
-    raise ValueError("Invalid source value received from MatchDialog: {}"
-                     "".format(self.source))
+    return len(list(self.get_functions()))
 
   def activate(self, ctx):
     dialog = MatchDialog()
