@@ -17,7 +17,7 @@ class MatchAction(base.BoundFileAction):
     super(MatchAction, self).__init__(*args, **kwargs)
     self.function_gen = None
     self.pbar = None
-    self.timer = QtCore.QTimer()
+    self.timer = None
     self.source = None
     self.target = None
     self.methods = []
@@ -69,6 +69,7 @@ class MatchAction(base.BoundFileAction):
     self.pbar.canceled.connect(self.cancel_upload)
     self.pbar.accepted.connect(self.accepted_upload)
 
+    self.timer = QtCore.QTimer()
     self.timer.timeout.connect(self.perform_upload)
     self.timer.start(0)
 
@@ -77,7 +78,6 @@ class MatchAction(base.BoundFileAction):
       i, offset = self.function_gen.next()
     except StopIteration:
       self.timer.stop()
-      self.timer.disconnect()
       return
 
     try:
@@ -103,7 +103,7 @@ class MatchAction(base.BoundFileAction):
 
   def cancel_upload(self):
     self.timer.stop()
-    self.timer.disconnect()
+    self.timer = None
     self.pbar = None
 
   def accepted_upload(self):
@@ -122,6 +122,7 @@ class MatchAction(base.BoundFileAction):
     self.pbar.canceled.connect(self.cancel_task)
     self.pbar.accepted.connect(self.accepted_task)
 
+    self.timer = QtCore.QTimer()
     self.timer.timeout.connect(self.perform_task)
     self.timer.start(1000)
 
@@ -143,7 +144,7 @@ class MatchAction(base.BoundFileAction):
 
   def cancel_task(self):
     self.timer.stop()
-    self.timer.disconnect()
+    self.timer = None
     self.pbar = None
 
   def accepted_task(self):
