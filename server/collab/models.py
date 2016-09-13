@@ -116,6 +116,9 @@ class Task(models.Model):
 class Match(Instance.matches.through()):
   task = models.ForeignKey(Task, db_index=True, related_name='matches')
 
+  type = models.CharField(max_length=16, choices=Vector.TYPE_CHOICES)
+  score = models.FloatField()
+
 
 #
 # Anotations
