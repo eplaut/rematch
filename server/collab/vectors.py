@@ -18,9 +18,6 @@ class DummyVector(Vector):
 
 
 class HashVector(Vector):
-  id = 'hash'
-  name = 'Hash'
-
   @staticmethod
   def match(source, target):
     # unique_values = set(source_dict.values())
@@ -36,12 +33,12 @@ class HashVector(Vector):
         yield (source_id, target_id)
 
 
-class AssemblyHashVector(Vector):
+class AssemblyHashVector(HashVector):
   id = 'assembly_hash'
   name = 'Assembly Hash'
 
 
-class MnemonicHashVector(Vector):
+class MnemonicHashVector(HashVector):
   id = 'mnemonic_hash'
   name = 'Mnemonic Hash'
 
@@ -55,6 +52,5 @@ class OpcodeHistogramVector(Vector):
   id = 'opcode_histogram'
   name = 'Opcode Histogram'
 
-vector_list = [DummyVector, HashVector, AssemblyHashVector,
-               MnemonicHashVector, MnemonicHistogramVector,
-               OpcodeHistogramVector]
+vector_list = [DummyVector, AssemblyHashVector, MnemonicHashVector,
+               MnemonicHistogramVector,OpcodeHistogramVector]
