@@ -1,11 +1,17 @@
 from collections import defaultdict
+from models import Match
 
 
 class Vector:
   @classmethod
-  def match(cls, soure, target):
+  def match(cls, source, target):
     raise NotImplementedError("Method match for vector type {} not "
                               "implemented".format(cls))
+
+  @classmethod
+  def get_matches(cls, source, target, task_id):
+    for source_id, target_id, score in cls.match(source, target):
+      yield Match(source_id, target_id, score=score, type=cls.id)
 
 
 class DummyVector(Vector):
@@ -18,8 +24,8 @@ class DummyVector(Vector):
 
 
 class HashVector(Vector):
-  @staticmethod
-  def match(source, target):
+  @classmethod
+  def match(cls, source, target):
     # unique_values = set(source_dict.values())
     flipped_rest = defaultdict(list)
     # TODO: could be optimized by enumerating all identity matchs together
@@ -30,7 +36,7 @@ class HashVector(Vector):
       flipped_rest[target_data].append(target_id)
     for source_id, source_data in source.values_list('id', 'data').iterator():
       for target_id in flipped_rest.get(source_data, ()):
-        yield (source_id, target_id)
+        yield source_id, target_id, 100
 
 
 class AssemblyHashVector(HashVector):

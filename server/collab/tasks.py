@@ -21,13 +21,16 @@ def match(file_id, project_id):
       print(vector_type)
       vectors_filter = Vector.objects.filter(type=vector_type.id)
       source_vectors = vectors_filter.filter(file_id=file_id)
-      target_vectors = vectors_filter.filter(file_id__project_id=project_id)
+      if project_id:
+        target_vectors = vectors_filter.filter(file_id__project_id=project_id)
       target_vectors = target_vectors.exclude(file_id=file_id)
       print(source_vectors)
       print(target_vectors)
       print(source_vectors.all())
       print(target_vectors.all())
-      vector_type.match(source_vectors, target_vectors)
+      matches = vector_type.get_matches(source_vectors, target_vectors,
+                                        task.id)
+      print(list(matches))
 
       task.update(progress=F('progress') + 1)
 
