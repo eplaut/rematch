@@ -43,12 +43,18 @@ class MnemonicHashVector(HashVector):
   name = 'Mnemonic Hash'
 
 
-class MnemonicHistogramVector(Vector):
+class HistogramVector(Vector):
+  @staticmethod
+  def match(source, target):
+    pass
+
+
+class MnemonicHistogramVector(HistogramVector):
   id = 'mnemonic_hist'
   name = 'Mnemonic Histogram'
 
 
-class OpcodeHistogramVector(Vector):
+class OpcodeHistogramVector(HistogramVector):
   id = 'opcode_histogram'
   name = 'Opcode Histogram'
 
