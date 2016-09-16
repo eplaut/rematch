@@ -53,4 +53,4 @@ class OpcodeHistogramVector(Vector):
   name = 'Opcode Histogram'
 
 vector_list = [DummyVector, AssemblyHashVector, MnemonicHashVector,
-               MnemonicHistogramVector,OpcodeHistogramVector]
+               MnemonicHistogramVector, OpcodeHistogramVector]
