@@ -19,7 +19,7 @@ def match(file_id, project_id):
   # TODO: order might be important here
   for vector_type in vectors.vector_list:
       print(vector_type)
-      vectors_filter = Vector.objects.filter(type=vector_type.id)
+      vectors_filter = Vector.objects.filter(type=vector_type.vector_type)
       source_vectors = vectors_filter.filter(file_id=file_id)
       if project_id:
         target_vectors = vectors_filter.filter(file_id__project_id=project_id)

@@ -11,11 +11,11 @@ class Vector:
   @classmethod
   def get_matches(cls, source, target, task_id):
     for source_id, target_id, score in cls.match(source, target):
-      yield Match(source_id, target_id, score=score, type=cls.id)
+      yield Match(source_id, target_id, score=score, type=cls.match_type)
 
 
 class DummyVector(Vector):
-  id = 'dummy'
+  match_type = 'dummy'
   name = 'Dummy'
 
   @classmethod
@@ -40,12 +40,14 @@ class HashVector(Vector):
 
 
 class AssemblyHashVector(HashVector):
-  id = 'assembly_hash'
+  vector_type = 'assembly_hash'
+  match_type = 'assembly_hash'
   name = 'Assembly Hash'
 
 
 class MnemonicHashVector(HashVector):
-  id = 'mnemonic_hash'
+  vector_type = 'mnemonic_hash'
+  match_type = 'mnemonic_hash'
   name = 'Mnemonic Hash'
 
 
@@ -56,12 +58,14 @@ class HistogramVector(Vector):
 
 
 class MnemonicHistogramVector(HistogramVector):
-  id = 'mnemonic_hist'
+  vector_type = 'mnemonic_hist'
+  match_type = 'mnemonic_hist'
   name = 'Mnemonic Histogram'
 
 
 class OpcodeHistogramVector(HistogramVector):
-  id = 'opcode_histogram'
+  vector_type = 'opcode_histogram'
+  match_type = 'opcode_histogram'
   name = 'Opcode Histogram'
 
 vector_list = [DummyVector, AssemblyHashVector, MnemonicHashVector,
