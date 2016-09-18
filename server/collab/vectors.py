@@ -1,3 +1,6 @@
+import numpy as np
+import scipy as sp
+
 from collections import defaultdict
 from models import Match
 
@@ -54,7 +57,10 @@ class MnemonicHashVector(HashVector):
 class HistogramVector(Vector):
   @staticmethod
   def match(source, target):
-    pass
+    source_matrix = np.narray(source)
+    target_matrix = np.narray(target)
+    distances = sp.spatial.distance.cdist(source_matrix, target_matrix)
+    min_distances = distances.argmin(axis=0)
 
 
 class MnemonicHistogramVector(HistogramVector):
