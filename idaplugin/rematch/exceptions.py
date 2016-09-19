@@ -50,6 +50,6 @@ class UnknownQueryException(Exception):
 
   def __str__(self):
     if "Invalid pk" in self.response['file'][0]:
-      self.message = ("Invalid ID found, did you accidently switched"
-      "a server ? ")
+      self.message = ("Invalid ID found, did you accidently switched "
+                      "a server ? ")
     return "<{}: {}, {}>".format(self.__class__, self.response, self.message)
