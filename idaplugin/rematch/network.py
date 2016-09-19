@@ -111,7 +111,7 @@ def query(method, url, server=None, token=None, params=None, json=False):
     logger('network').debug(return_obj)
     logger('network').debug(ex.__dict__)
     err_codes = {500: exceptions.ServerException,
-                 400: exceptions.QueryException,
+                 400: exceptions.UnknownQueryException,
                  401: exceptions.AuthenticationException,
                  404: exceptions.NotFoundException}
     if ex.code in err_codes:

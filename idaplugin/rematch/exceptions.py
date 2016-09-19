@@ -1,3 +1,5 @@
+from json import loads
+
 class RematchException(Exception):
   message = ""
 
@@ -37,3 +39,20 @@ class AuthenticationException(RematchException):
 class NotFoundException(QueryException):
   message = ("Asset not found. This could be either a plugin error or a "
              "server error.")
+
+
+class UnknownQueryException(Exception):
+  message = ("Local error has occured! please report a reproducable bug if "
+             "this issue persists")
+  
+  def __init__(self, response=None, **kwargs):
+    super(UnknownQueryException, self).__init__(**kwargs)
+    self.response = response 
+
+  def __str__(self):
+    if "Invalid pk" in self.response['file'][0]:
+      self.message = ("Invalid ID found, did you accidently switched a server ? ")
+    return "<{}: {}, {}>".format(self.__class__, self.response, self.message)
+   
+
+
