@@ -8,8 +8,8 @@ except ImportError:
   from PySide import QtGui, QtCore
   QtWidgets = QtGui
 
-from .. import instances
-from .. import network, netnode
+from .. import instances, logger
+from .. import network, netnode, exceptions
 from . import base
 
 
@@ -34,9 +34,17 @@ class MatchAllAction(base.BoundFileAction):
       i, offset = self.function_gen.next()
 
       func = instances.FunctionInstance(self.file_id, offset)
-      network.query("POST", "collab/instances/", params=func.serialize(),
-                    json=True)
-
+      try:
+        network.query("POST", "collab/instances/", params=func.serialize(),
+                      json=True)
+      except exceptions.QueryException as e:
+        data = e.data()
+        if "Invalid pk" in data['file'][0]:
+          logger('MatchAllAction').error("Something wrong happened, we can't"
+                                         " find the right database to fetch"
+                                         "infomation from.\nAre you sure you'"
+                                         "re usig the right server ?\nDid you"
+                                         "create a new database ?")
       i = i + 1
       self.progress.setValue(i)
       if (i >= self.progress.maximum()):
@@ -63,5 +71,14 @@ class MatchFunctionAction(base.BoundFileAction):
       return
 
     data = instances.FunctionInstance(file_id, function.startEA)
-    network.query("POST", "collab/instances/", params=data.serialize(),
-                  json=True)
+    try:
+      network.query("POST", "collab/instances/", params=data.serialize(),
+                    json=True)
+    except exceptions.QueryException as e:
+      data = e.data()
+      if "Invalid pk" in data['file'][0]:
+        logger('MatchAllAction').error("Something wrong happened, we can't"
+                                       " find the right database to fetch info"
+                                       "rmation from.\nAre you sure you're usi"
+                                       "ng the right server ?\nDid you create "
+                                       "a new database ?")

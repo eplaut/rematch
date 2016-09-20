@@ -8,6 +8,9 @@ class RematchException(Exception):
   def __str__(self):
     return "<{}: {}, {}>".format(self.__class__, self.response, self.message)
 
+  def data(self):
+    return self.response
+
 
 class UnsavedIdb(RematchException):
   message = ("You mast save the IDB before uploading it to the database, "
