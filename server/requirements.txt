@@ -1,5 +1,7 @@
 django
 numpy
+scipy
+scikit-learn
 django-registration-redux
 djangorestframework
 django-rest-auth
