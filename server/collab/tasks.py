@@ -17,7 +17,8 @@ def match(file_id, project_id):
 
   print("Running task {}".format(match.request.id))
   # TODO: order might be important here
-  for vector_type in vectors.vector_list:
+  try:
+    for vector_type in vectors.vector_list:
       print(vector_type)
       vectors_filter = Vector.objects.filter(type=vector_type.vector_type)
       source_vectors = vectors_filter.filter(file_id=file_id)
@@ -33,5 +34,8 @@ def match(file_id, project_id):
       print(list(matches))
 
       task.update(progress=F('progress') + 1)
+  except Exception as ex:
+    task.update(status=Task.STATUS_FAILED, finished=now())
+    raise ex
 
   task.update(status=Task.STATUS_DONE, finished=now())
