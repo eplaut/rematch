@@ -3,13 +3,13 @@ class RematchException(Exception):
 
   def __init__(self, response=None, **kwargs):
     super(RematchException, self).__init__(**kwargs)
-    self.response = response
+    self._response = response
 
   def __str__(self):
-    return "<{}: {}, {}>".format(self.__class__, self.response, self.message)
+    return "<{}: {}, {}>".format(self.__class__, self._response, self.message)
 
-  def data(self):
-    return self.response
+  def response(self):
+    return self._response
 
 
 class UnsavedIdb(RematchException):

@@ -38,7 +38,7 @@ class MatchAllAction(base.BoundFileAction):
         network.query("POST", "collab/instances/", params=func.serialize(),
                       json=True)
       except exceptions.QueryException as e:
-        data = e.data()
+        data = e.response()
         if "Invalid pk" in data['file'][0]:
           logger('MatchAllAction').error("Something wrong happened, we can't"
                                          " find the right database to fetch"
@@ -75,7 +75,7 @@ class MatchFunctionAction(base.BoundFileAction):
       network.query("POST", "collab/instances/", params=data.serialize(),
                     json=True)
     except exceptions.QueryException as e:
-      data = e.data()
+      data = e.response()
       if "Invalid pk" in data['file'][0]:
         logger('MatchAllAction').error("Something wrong happened, we can't"
                                        " find the right database to fetch info"

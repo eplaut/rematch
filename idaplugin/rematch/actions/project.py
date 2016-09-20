@@ -1,8 +1,7 @@
 from . import base
 from ..dialogs.project import AddProjectDialog, AddFileDialog
 
-from .. import netnode
-from .. import network
+from .. import netnode, network, logger, exceptions
 
 
 class AddProjectAction(base.AuthAction):
@@ -18,8 +17,18 @@ class AddProjectAction(base.AuthAction):
     if bind_current:
       data['files'].append(netnode.bound_file_id)
 
-    return network.QueryWorker("POST", "collab/projects/", params=data,
-                               json=True)
+    try:
+      resp = network.QueryWorker("POST", "collab/projects/", params=data,
+                                 json=True)
+    except exceptions.QueryException as e:
+      data = e.response()
+      if "Invalid pk" in data['file'][0]:
+        logger('MatchAllAction').error("Something wrong happened, we can't"
+                                       " find the right database to fetch"
+                                       "infomation from.\nAre you sure you'"
+                                       "re usig the right server ?\nDid you"
+                                       "create a new database ?")
+    return resp
 
 
 class AddFileAction(base.UnboundFileAction):
@@ -37,8 +46,18 @@ class AddFileAction(base.UnboundFileAction):
       # TODO: uploadfile
       pass
 
-    return network.QueryWorker("POST", "collab/files/", params=data,
-                               json=True)
+    try:
+      resp = network.QueryWorker("POST", "collab/files/", params=data,
+                                 json=True)
+    except exceptions.QueryException as e:
+      data = e.response()
+      if "Invalid pk" in data['file'][0]:
+        logger('MatchAllAction').error("Something wrong happened, we can't"
+                                       " find the right database to fetch"
+                                       "infomation from.\nAre you sure you'"
+                                       "re usig the right server ?\nDid you"
+                                       "create a new database ?")
+    return resp
 
   @staticmethod
   def response_handler(response):
