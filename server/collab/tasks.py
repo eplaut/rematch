@@ -1,6 +1,6 @@
 from django.utils.timezone import now
 from django.db.models import F
-from models import Task, Vector
+from models import Task, Vector, Match
 import vectors
 
 from celery import shared_task
@@ -29,9 +29,12 @@ def match(file_id, project_id):
       print(target_vectors)
       print(source_vectors.all())
       print(target_vectors.all())
-      matches = vector_type.get_matches(source_vectors, target_vectors,
-                                        task.id)
-      print(list(matches))
+      matches = vector_type.match(source_vectors, target_vectors, task.id)
+      match_objs = [Match(source, target, score=score,
+                          type=vector_type.match_type)
+                    for source, target, score in matches]
+      Match.objects.bulk_create(match_objs)
+      print(list(match_objs))
 
       task.update(progress=F('progress') + 1)
   except Exception as ex:

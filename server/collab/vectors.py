@@ -2,7 +2,6 @@ import numpy as np
 import scipy as sp
 
 from collections import defaultdict
-from models import Match
 
 
 class Vector:
@@ -10,11 +9,6 @@ class Vector:
   def match(cls, source, target):
     raise NotImplementedError("Method match for vector type {} not "
                               "implemented".format(cls))
-
-  @classmethod
-  def get_matches(cls, source, target, task_id):
-    for source_id, target_id, score in cls.match(source, target):
-      yield Match(source_id, target_id, score=score, type=cls.match_type)
 
 
 class DummyVector(Vector):
