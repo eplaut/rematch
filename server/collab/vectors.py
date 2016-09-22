@@ -17,8 +17,10 @@ class DummyVector(Vector):
   match_type = 'dummy'
   name = 'Dummy'
 
-  @classmethod
-  def match(cls, soure, target):
+  @staticmethod
+  def match(source, target):
+    del source
+    del target
     return []
 
 

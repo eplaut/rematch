@@ -63,6 +63,6 @@ class VectorViewSet(ViewSetManyAllowedMixin, viewsets.ModelViewSet):
   serializer_class = VectorSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-  def perform_create(self, serializer):
-    del self
+  @staticmethod
+  def perform_create(serializer):
     serializer.save(file=serializer.validated_data['instance'].file)
