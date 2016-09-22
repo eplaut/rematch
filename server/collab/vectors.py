@@ -3,6 +3,8 @@ import scipy as sp
 
 from collections import defaultdict
 
+from sklearn.preprocessing import normalize
+
 
 class Vector:
   @classmethod
@@ -51,10 +53,17 @@ class MnemonicHashVector(HashVector):
 class HistogramVector(Vector):
   @staticmethod
   def match(source, target):
-    source_matrix = np.narray(source)
-    target_matrix = np.narray(target)
+    source_id, source_data = source.values('id', 'data')
+    target_id, target_data = target.values('id', 'data')
+    source_matrix = normalize(np.narray(source_data), axis=1, norm='l1')
+    target_matrix = normalize(np.narray(target_data), axis=1, norm='l1')
     distances = sp.spatial.distance.cdist(source_matrix, target_matrix)
-    min_distances = distances.argmin(axis=0)
+    for source_i in range(source_matrix.shape[0]):
+      for target_i in range(target_matrix.shape[0]):
+        source_id = source_id[source_i]
+        target_id = target_id[target_i]
+        score = distances[source_i][target_i]
+        yield source_id, target_id, score
 
 
 class MnemonicHistogramVector(HistogramVector):
