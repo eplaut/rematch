@@ -1,26 +1,23 @@
 from django.utils.timezone import now
 from django.db.models import F
 from models import Task, Vector, Match
-import vectors
+import matches
 
 from celery import shared_task
 
 
 @shared_task
 def match(file_id, project_id):
-  # doing some preperations
-  vector_types = [t[0] for t in Vector.TYPE_CHOICES]
-
   # recording the task has started
   task = Task.objects.filter(task_id=match.request.id)
-  task.update(status=Task.STATUS_STARTED, progress_max=len(vector_types))
+  task.update(status=Task.STATUS_STARTED, progress_max=len(matches.match_list))
 
   print("Running task {}".format(match.request.id))
   # TODO: order might be important here
   try:
-    for vector_type in vectors.vector_list:
-      print(vector_type)
-      vectors_filter = Vector.objects.filter(type=vector_type.vector_type)
+    for match_type in matches.match_list:
+      print(match_type)
+      vectors_filter = Vector.objects.filter(type=match_type.vector_type)
       source_vectors = vectors_filter.filter(file_id=file_id)
       if project_id:
         target_vectors = vectors_filter.filter(file_id__project_id=project_id)
@@ -29,10 +26,10 @@ def match(file_id, project_id):
       print(target_vectors)
       print(source_vectors.all())
       print(target_vectors.all())
-      matches = vector_type.match(source_vectors, target_vectors, task.id)
+      match_results = match_type.match(source_vectors, target_vectors, task.id)
       match_objs = [Match(source, target, score=score,
-                          type=vector_type.match_type)
-                    for source, target, score in matches]
+                          type=match_type.match_type)
+                    for source, target, score in match_results]
       Match.objects.bulk_create(match_objs)
       print(list(match_objs))
 

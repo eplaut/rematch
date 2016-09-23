@@ -6,16 +6,15 @@ from collections import defaultdict
 from sklearn.preprocessing import normalize
 
 
-class Vector:
+class Match:
   @classmethod
   def match(cls, source, target):
     raise NotImplementedError("Method match for vector type {} not "
                               "implemented".format(cls))
 
 
-class DummyVector(Vector):
+class DummyMatch(Match):
   match_type = 'dummy'
-  name = 'Dummy'
 
   @staticmethod
   def match(source, target):
@@ -24,7 +23,7 @@ class DummyVector(Vector):
     return []
 
 
-class HashVector(Vector):
+class HashMatch(Match):
   @classmethod
   def match(cls, source, target):
     # unique_values = set(source_dict.values())
@@ -40,19 +39,17 @@ class HashVector(Vector):
         yield source_id, target_id, 100
 
 
-class AssemblyHashVector(HashVector):
+class AssemblyHashMatch(HashMatch):
   vector_type = 'assembly_hash'
   match_type = 'assembly_hash'
-  name = 'Assembly Hash'
 
 
-class MnemonicHashVector(HashVector):
+class MnemonicHashMatch(HashMatch):
   vector_type = 'mnemonic_hash'
   match_type = 'mnemonic_hash'
-  name = 'Mnemonic Hash'
 
 
-class HistogramVector(Vector):
+class HistogramMatch(Match):
   @staticmethod
   def match(source, target):
     source_id, source_data = source.values('id', 'data')
@@ -68,16 +65,14 @@ class HistogramVector(Vector):
         yield source_id, target_id, score
 
 
-class MnemonicHistogramVector(HistogramVector):
+class MnemonicHistogramMatch(HistogramMatch):
   vector_type = 'mnemonic_hist'
   match_type = 'mnemonic_hist'
-  name = 'Mnemonic Histogram'
 
 
-class OpcodeHistogramVector(HistogramVector):
+class OpcodeHistogramMatch(HistogramMatch):
   vector_type = 'opcode_histogram'
   match_type = 'opcode_histogram'
-  name = 'Opcode Histogram'
 
-vector_list = [DummyVector, AssemblyHashVector, MnemonicHashVector,
-               MnemonicHistogramVector, OpcodeHistogramVector]
+match_list = [DummyMatch, AssemblyHashMatch, MnemonicHashMatch,
+              MnemonicHistogramMatch, OpcodeHistogramMatch]
