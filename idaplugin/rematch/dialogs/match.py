@@ -37,11 +37,9 @@ class MatchDialog(base.BaseDialog):
     methodGbx.setLayout(methodLyt)
     self.base_layout.addWidget(methodGbx)
 
-    self.bottom_layout(self.accept, "&Start matching")
+    self.bottom_layout("&Start matching")
 
   def data(self):
-    source = self.get_radio_result(self.sourceGrp)
-    target = self.get_radio_result(self.targetGrp)
     methods = []
     if self.identity.isChecked():
       methods.append('identity')
@@ -50,4 +48,6 @@ class MatchDialog(base.BaseDialog):
     if self.graph.isChecked():
       methods.append('graph')
 
-    return source, target, methods
+    return {'source': self.get_radio_result(self.sourceGrp),
+            'target': self.get_radio_result(self.targetGrp),
+            'methods': methods}
