@@ -41,10 +41,12 @@ class MatchAllAction(base.BoundFileAction):
         data = e.response()
         if "Invalid pk" in data['file'][0]:
           logger('match').error("Something wrong happened, we can't"
-                                         " find the right database to fetch"
-                                         "infomation from.\nAre you sure you'"
-                                         "re usig the right server ?\nDid you"
-                                         "create a new database?")
+                                " find the right database to fetch"
+                                "infomation from.\nAre you sure you'"
+                                "re usig the right server ?\nDid you"
+                                "create a new database?")
+        else:
+          raise
       i = i + 1
       self.progress.setValue(i)
       if (i >= self.progress.maximum()):
@@ -78,7 +80,9 @@ class MatchFunctionAction(base.BoundFileAction):
       data = e.response()
       if "Invalid pk" in data['file'][0]:
         logger('match').error("Something wrong happened, we can't"
-                                       " find the right database to fetch info"
-                                       "rmation from.\nAre you sure you're usi"
-                                       "ng the right server ?\nDid you create "
-                                       "a new database?")
+                              " find the right database to fetch info"
+                              "rmation from.\nAre you sure you're usi"
+                              "ng the right server ?\nDid you create "
+                              "a new database?")
+      else:
+        raise
