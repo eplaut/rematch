@@ -23,11 +23,11 @@ class AddProjectAction(base.AuthAction):
     except exceptions.QueryException as e:
       data = e.response()
       if "Invalid pk" in data['file'][0]:
-        logger('MatchAllAction').error("Something wrong happened, we can't"
+        logger('project').error("Something wrong happened, we can't"
                                        " find the right database to fetch"
                                        "infomation from.\nAre you sure you'"
                                        "re usig the right server ?\nDid you"
-                                       "create a new database ?")
+                                       "create a new database?")
     return resp
 
 
@@ -52,11 +52,11 @@ class AddFileAction(base.UnboundFileAction):
     except exceptions.QueryException as e:
       data = e.response()
       if "Invalid pk" in data['file'][0]:
-        logger('MatchAllAction').error("Something wrong happened, we can't"
+        logger('project').error("Something wrong happened, we can't"
                                        " find the right database to fetch"
                                        "infomation from.\nAre you sure you'"
                                        "re usig the right server ?\nDid you"
-                                       "create a new database ?")
+                                       "create a new database?")
     return resp
 
   @staticmethod
