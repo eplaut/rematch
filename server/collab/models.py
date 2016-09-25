@@ -51,7 +51,8 @@ class Instance(models.Model):
   type = models.CharField(max_length=16, choices=TYPE_CHOICES)
   offset = models.BigIntegerField()
 
-  matches = models.ManyToManyField('self', symmetrical=True)
+  matches = models.ManyToManyField('self', symmetrical=False, through='Match',
+                                   related_name='related_to+')
 
   def __unicode__(self):
     return "{} instance {} at {}".format(self.get_type_display(), self.offset,
@@ -78,6 +79,9 @@ class Vector(models.Model):
   type = models.CharField(max_length=16, choices=TYPE_CHOICES)
   type_version = models.IntegerField()
   data = models.TextField()
+
+  matches = models.ManyToManyField('self', symmetrical=False, through='Match',
+                                   related_name='related_to+')
 
   def __unicode__(self):
     return "{} vector version {} for {}".format(self.get_type_display(),
@@ -123,7 +127,13 @@ class Task(models.Model):
   progress_max = models.PositiveSmallIntegerField(default=0)
 
 
-class Match(Instance.matches.through()):
+class Match(models.Model):
+  from_vector = models.ForeignKey(Vector, related_name='from_vector')
+  to_vector = models.ForeignKey(Vector, related_name='to_vector')
+
+  from_instance = models.ForeignKey(Instance, related_name='from_instance')
+  to_instance = models.ForeignKey(Instance, related_name='to_instance')
+
   task = models.ForeignKey(Task, db_index=True, related_name='matches')
 
   type = models.CharField(max_length=16, choices=Vector.TYPE_CHOICES)

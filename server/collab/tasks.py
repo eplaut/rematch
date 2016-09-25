@@ -19,23 +19,26 @@ def match(file_id, project_id):
       print(match_type)
       vectors_filter = Vector.objects.filter(type=match_type.vector_type)
       source_vectors = vectors_filter.filter(file_id=file_id)
+      target_vectors = vectors_filter
       if project_id:
-        target_vectors = vectors_filter.filter(file_id__project_id=project_id)
+        target_vectors = target_vectors.filter(file_id__project_id=project_id)
       target_vectors = target_vectors.exclude(file_id=file_id)
       print(source_vectors)
       print(target_vectors)
       print(source_vectors.all())
       print(target_vectors.all())
-      match_results = match_type.match(source_vectors, target_vectors, task.id)
-      match_objs = [Match(source, target, score=score,
-                          type=match_type.match_type)
-                    for source, target, score in match_results]
-      Match.objects.bulk_create(match_objs)
-      print(list(match_objs))
+      if source_vectors.count() and target_vectors.count():
+        match_results = match_type.match(source_vectors, target_vectors)
+        match_objs = [Match(source, target, score=score,
+                            type=match_type.match_type)
+                      for source, target, score in match_results]
+        print(type(Match))
+        Match.objects.bulk_create(match_objs)
+        print(list(match_objs))
 
       task.update(progress=F('progress') + 1)
-  except Exception as ex:
+  except Exception:
     task.update(status=Task.STATUS_FAILED, finished=now())
-    raise ex
+    raise
 
   task.update(status=Task.STATUS_DONE, finished=now())
