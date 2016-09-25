@@ -117,6 +117,7 @@ class MatchAction(base.BoundFileAction):
     self.pbar.setValue(int(r['progress']))
     self.pbar.canceled.connect(self.cancel_task)
     self.pbar.accepted.connect(self.accepted_task)
+    self.pbar.show()
 
     self.timer = QtCore.QTimer()
     self.timer.timeout.connect(self.perform_task)
