@@ -130,11 +130,14 @@ class MatchAction(base.BoundFileAction):
 
       progress_max = int(r['progress_max'])
       progress = int(r['progress'])
+      status = r['status']
       self.pbar.setRange(0, progress_max)
       self.pbar.setValue(progress)
 
       if progress >= progress_max:
         self.pbar.accept()
+      elif status == 'failed':
+        self.pbar.reject()
     except Exception:
       self.cancel_task()
       raise

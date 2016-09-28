@@ -3,6 +3,7 @@ import scipy as sp
 
 import collections
 import itertools
+import json
 
 from sklearn.preprocessing import normalize
 
@@ -25,7 +26,7 @@ class HashMatch(Match):
       # TODO: could be optimized by uncommenting next line as most 'target'
       # values won't be present in 'source' list
       # if v in unique_values:
-      flipped_rest[target_data].append(target_id, target_instance_id)
+      flipped_rest[target_data].append((target_id, target_instance_id))
     source_values = source.values_list('id', 'instance_id', 'data').iterator()
     for source_id, source_instance_id, source_data in source_values:
       for target_id, target_instance_id in flipped_rest.get(source_data, ()):
@@ -52,8 +53,22 @@ class HistogramMatch(Match):
       return
     source_id, source_instance_id, source_data = source_values
     target_id, target_instance_id, target_data = target_values
-    source_matrix = normalize(np.narray(source_data), axis=1, norm='l1')
-    target_matrix = normalize(np.narray(target_data), axis=1, norm='l1')
+    try:
+      source_data = [json.loads(d) for d in source_data]
+      target_data = [json.loads(d) for d in target_data]
+    except Exception as ex:
+      print(ex)
+      print(d)
+      raise
+    print(source_data)
+    source_data = np.array(source_data)
+    target_data = np.array(target_data)
+    print(type(source_data))
+    print(source_data)
+    print(source_data.shape)
+    print(source_data.dtype)
+    source_matrix = normalize(source_data, axis=1, norm='l1')
+    target_matrix = normalize(target_data, axis=1, norm='l1')
     distances = sp.spatial.distance.cdist(source_matrix, target_matrix)
     for source_i in range(source_matrix.shape[0]):
       for target_i in range(target_matrix.shape[0]):
