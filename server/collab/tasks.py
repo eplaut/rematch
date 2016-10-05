@@ -18,6 +18,7 @@ def match(file_id, project_id):
   try:
     for match_type in matches.match_list:
       print(match_type)
+      start = now()
       vectors_filter = Vector.objects.filter(type=match_type.vector_type)
       source_vectors = vectors_filter.filter(file_id=file_id)
       target_vectors = vectors_filter
@@ -28,6 +29,7 @@ def match(file_id, project_id):
         match_objs = gen_match_objs(task_id, match_type, source_vectors,
                                     target_vectors)
         Match.objects.bulk_create(match_objs)
+      print("\tTook: {}".format(now() - start))
 
       task.update(progress=F('progress') + 1)
   except Exception:
