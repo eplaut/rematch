@@ -11,7 +11,8 @@ def match(file_id, project_id):
   # recording the task has started
   task = Task.objects.filter(task_id=match.request.id)
   task_id = task.only('id')[0].id
-  task.update(status=Task.STATUS_STARTED, progress_max=len(matches.match_list))
+  task.update(status=Task.STATUS_STARTED, progress=0,
+              progress_max=len(matches.match_list))
 
   print("Running task {}".format(match.request.id))
   # TODO: order might be important here

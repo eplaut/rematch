@@ -113,7 +113,7 @@ class MatchAction(base.BoundFileAction):
     self.pbar = QtWidgets.QProgressDialog()
     self.pbar.setLabelText("Waiting for remote matching... You may continue "
                            "working without any limitations.")
-    self.pbar.setRange(0, int(r['progress_max']))
+    self.pbar.setRange(0, int(r['progress_max']) if r['progress_max'] else 0)
     self.pbar.setValue(int(r['progress']))
     self.pbar.canceled.connect(self.cancel_task)
     self.pbar.accepted.connect(self.accepted_task)
@@ -128,15 +128,16 @@ class MatchAction(base.BoundFileAction):
       r = network.query("GET", "collab/tasks/{}/".format(self.task_id),
                         json=True)
 
-      progress_max = int(r['progress_max'])
+      progress_max = int(r['progress_max']) if r['progress_max'] else None
       progress = int(r['progress'])
       status = r['status']
-      self.pbar.setRange(0, progress_max)
+      if progress_max:
+        self.pbar.setMaximum(progress_max)
+        if progress >= progress_max:
+          self.pbar.accept()
       self.pbar.setValue(progress)
 
-      if progress >= progress_max:
-        self.pbar.accept()
-      elif status == 'failed':
+      if status == 'failed':
         self.pbar.reject()
     except Exception:
       self.cancel_task()

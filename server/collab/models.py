@@ -124,7 +124,7 @@ class Task(models.Model):
   file = models.ForeignKey(File, related_name='tasks')
 
   progress = models.PositiveSmallIntegerField(default=0)
-  progress_max = models.PositiveSmallIntegerField(default=0)
+  progress_max = models.PositiveSmallIntegerField(null=True)
 
 
 class Match(models.Model):
