@@ -1,11 +1,11 @@
-import numpy as np
-import scipy as sp
-
 import collections
 import itertools
 import json
 
-from sklearn.preprocessing import normalize
+import sklearn as skl
+import sklearn.preprocessing
+import sklearn.feature_extraction
+import sklearn.metrics
 
 
 class Match:
@@ -46,36 +46,32 @@ class MnemonicHashMatch(HashMatch):
 class HistogramMatch(Match):
   @staticmethod
   def match(source, target):
-    source_values = itertools.izip(*source.values('id', 'instance_id', 'data'))
-    target_values = itertools.izip(*target.values('id', 'instance_id', 'data'))
+    source_values = itertools.izip(*source.values_list('id', 'instance_id',
+                                                       'data'))
+    target_values = itertools.izip(*target.values_list('id', 'instance_id',
+                                                       'data'))
 
-    if not source_values or not target_values:
-      return
-    source_id, source_instance_id, source_data = source_values
-    target_id, target_instance_id, target_data = target_values
-    try:
-      source_data = [json.loads(d) for d in source_data]
-      target_data = [json.loads(d) for d in target_data]
-    except Exception as ex:
-      print(ex)
-      print(d)
-      raise
-    print(source_data)
-    source_data = np.array(source_data)
-    target_data = np.array(target_data)
-    print(type(source_data))
-    print(source_data)
-    print(source_data.shape)
-    print(source_data.dtype)
-    source_matrix = normalize(source_data, axis=1, norm='l1')
-    target_matrix = normalize(target_data, axis=1, norm='l1')
-    distances = sp.spatial.distance.cdist(source_matrix, target_matrix)
+    source_ids, source_instance_ids, source_data = source_values
+    target_ids, target_instance_ids, target_data = target_values
+    dictvect = skl.feature_extraction.DictVectorizer()
+    source_data = dictvect.fit_transform([json.loads(d) for d in source_data])
+    target_data = dictvect.transform([json.loads(d) for d in target_data])
+    source_matrix = skl.preprocessing.normalize(source_data, axis=1, norm='l1')
+    target_matrix = skl.preprocessing.normalize(target_data, axis=1, norm='l1')
+    print(type(source_matrix))
+    print(source_matrix.shape)
+    print(type(target_matrix))
+    print(target_matrix.shape)
+    distances = skl.metrics.pairwise.pairwise_distances(source_matrix,
+                                                        target_matrix)
+    print(type(distances))
+    print(distances.shape)
     for source_i in range(source_matrix.shape[0]):
       for target_i in range(target_matrix.shape[0]):
-        source_id = source_id[source_i]
-        target_id = target_id[target_i]
-        source_instance_id = source_instance_id[source_i]
-        target_instance_id = target_instance_id[target_i]
+        source_id = source_ids[source_i]
+        target_id = target_ids[target_i]
+        source_instance_id = source_instance_ids[source_i]
+        target_instance_id = target_instance_ids[target_i]
         score = distances[source_i][target_i]
         yield (source_id, source_instance_id, target_id, target_instance_id,
                score)
