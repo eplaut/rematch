@@ -2,10 +2,10 @@ import collections
 import itertools
 import json
 
+import numpy as np
 import sklearn as skl
-import sklearn.preprocessing
-import sklearn.feature_extraction
-import sklearn.metrics
+import sklearn.preprocessing  # noqa flake8 importing as a different name
+import sklearn.feature_extraction  # noqa flake8 importing as a different name
 
 
 class Match:
@@ -19,6 +19,7 @@ class HashMatch(Match):
   @classmethod
   def match(cls, source, target):
     # unique_values = set(source_dict.values())
+    print(source.count(), target.count())
     flipped_rest = collections.defaultdict(list)
     # TODO: could be optimized by enumerating all identity matchs together
     target_values = target.values_list('id', 'instance_id', 'data').iterator()
@@ -62,17 +63,18 @@ class HistogramMatch(Match):
     print(source_matrix.shape)
     print(type(target_matrix))
     print(target_matrix.shape)
-    distances = skl.metrics.pairwise.pairwise_distances(source_matrix,
-                                                        target_matrix)
-    print(type(distances))
-    print(distances.shape)
     for source_i in range(source_matrix.shape[0]):
+      source_vector = source_matrix[source_i].toarray()
+      source_id = source_ids[source_i]
+      source_instance_id = source_instance_ids[source_i]
+      print(source_i)
+
       for target_i in range(target_matrix.shape[0]):
-        source_id = source_ids[source_i]
+        target_vector = target_matrix[target_i].toarray()
         target_id = target_ids[target_i]
-        source_instance_id = source_instance_ids[source_i]
         target_instance_id = target_instance_ids[target_i]
-        score = distances[source_i][target_i]
+
+        score = np.linalg.norm(source_vector - target_vector)
         yield (source_id, source_instance_id, target_id, target_instance_id,
                score)
 
