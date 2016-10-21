@@ -120,8 +120,10 @@ class Task(models.Model):
                             choices=STATUS_CHOICES)
   action = models.CharField(max_length=16, choices=ACTION_CHOICES)
 
-  project = models.ForeignKey(Project, null=True, related_name='tasks')
-  file = models.ForeignKey(File, related_name='tasks')
+  source_file = models.ForeignKey(File, related_name='source_tasks')
+  # TODO: make sure only at least one of target_file/target_project is null
+  target_file = models.ForeignKey(File, null=True)
+  target_project = models.ForeignKey(Project, null=True)
 
   progress = models.PositiveSmallIntegerField(default=0)
   progress_max = models.PositiveSmallIntegerField(null=True)

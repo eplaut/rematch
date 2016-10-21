@@ -23,29 +23,27 @@ class MatchAction(base.BoundFileAction):
     self.pbar = None
     self.instance_set = []
 
-  @staticmethod
-  def get_functions(source):
-    if source == 'idb':
+  def get_functions(self):
+    if self.source == 'idb':
       return idautils.Functions()
-    elif source == 'user':
+    elif self.source == 'user':
       raise NotImplementedError("All user functions are not currently "
                                 "supported as source value.")
-    elif source == 'single':
+    elif self.source == 'single':
       func = idaapi.choose_func("Choose function to match with database",
                                 idc.ScreenEA())
       if not func:
         return None
       return [func.startEA]
-    elif source == 'range':
+    elif self.source == 'range':
       raise NotImplementedError("Range of addresses is not currently "
                                 "supported as source value.")
 
     raise ValueError("Invalid source value received from MatchDialog: {}"
-                     "".format(source))
+                     "".format(self.source))
 
-  @classmethod
-  def get_functions_count(cls, source):
-    return len(list(cls.get_functions(source)))
+  def get_functions_count(self):
+    return len(list(self.get_functions()))
 
   def submit_handler(self, source, target, methods):
     self.source = source
@@ -53,7 +51,7 @@ class MatchAction(base.BoundFileAction):
     self.methods = methods
 
     # TODO: actually use target and methods
-    function_gen = self.get_functions(source)
+    function_gen = self.get_functions()
     if not function_gen:
       return False
 
@@ -61,7 +59,7 @@ class MatchAction(base.BoundFileAction):
     self.pbar = QtWidgets.QProgressDialog()
     self.pbar.setLabelText("Processing IDB... You may continue working,\nbut "
                            "please avoid making any ground-breaking changes.")
-    self.pbar.setRange(0, self.get_functions_count(source))
+    self.pbar.setRange(0, self.get_functions_count())
     self.pbar.setValue(0)
     self.pbar.canceled.connect(self.cancel_upload)
     self.pbar.accepted.connect(self.accepted_upload)
@@ -109,8 +107,9 @@ class MatchAction(base.BoundFileAction):
   def accepted_upload(self):
     self.cancel_upload()
 
-    params = {'action': 'commit', 'file': netnode.bound_file_id,
-              'project': None, 'target': self.target, 'matches': self.matches}
+    params = {'action': 'commit', 'source_file': netnode.bound_file_id,
+              'target_project': None, 'target_file': None,
+              'source': self.source, 'methods': self.methods}
     r = network.query("POST", "collab/tasks/", params=params, json=True)
     self.task_id = r['id']
 

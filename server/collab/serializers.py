@@ -31,13 +31,11 @@ class TaskSerializer(serializers.ModelSerializer):
   progress = serializers.ReadOnlyField()
   progress_max = serializers.ReadOnlyField()
 
-  project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all(),
-                                               allow_null=True)
-
   class Meta:
     model = Task
     fields = ('id', 'task_id', 'created', 'finished', 'owner', 'status',
-              'action', 'project', 'file', 'progress', 'progress_max')
+              'action', 'target_project', 'target_file', 'source_file',
+              'progress', 'progress_max')
 
 
 class InstanceSerializer(serializers.ModelSerializer):
