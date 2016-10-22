@@ -23,6 +23,10 @@ class MatchAction(base.BoundFileAction):
     self.pbar = None
     self.instance_set = []
 
+    self.source = None
+    self.target = None
+    self.methods = None
+
   def get_functions(self):
     if self.source == 'idb':
       return idautils.Functions()

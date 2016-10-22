@@ -11,16 +11,18 @@ class MatchDialog(base.BaseDialog):
   def __init__(self, **kwargs):
     super(MatchDialog, self).__init__(title="Match", **kwargs)
 
-    self.sourceGrp = self.add_radio_group("Match source",
-                                          ("Entire IDB", 'idb'),
-                                          ("User functions", 'user'),
-                                          ("Single function", 'single'),
-                                          ("Range", 'range'))
+    choices = [("Entire IDB", 'idb', None),
+               ("User functions", 'user', None),
+               ("Single function", 'single', None),
+               ("Range", 'range', None)]
+    self.sourceGrp = self.create_radio_group("Match source", *choices)
 
-    self.targetGrp = self.add_radio_group("Match target",
-                                          ("Entire DB", 'db'),
-                                          ("Project", 'project'),
-                                          ("Another file", 'file'))
+    self.target_project = self.create_item_select('projects', allow_none=False)
+    self.target_file = self.create_item_select('files', allow_none=False)
+    choices = [("Entire DB", 'db', None),
+               ("Project", 'project', self.target_project),
+               ("Another file", 'file', self.target_file)]
+    self.targetGrp = self.create_radio_group("Match target", *choices)
 
     self.identity = QtWidgets.QCheckBox("Identify matches")
     self.fuzzy = QtWidgets.QCheckBox("Fuzzy matches")

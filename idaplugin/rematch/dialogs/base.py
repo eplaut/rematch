@@ -20,31 +20,42 @@ class BaseDialog(QtWidgets.QDialog):
     self.base_layout = QtWidgets.QVBoxLayout()
     self.setLayout(self.base_layout)
 
-  def add_radio_group(self, title, *radios, **kwargs):
+  def create_radio_group(self, title, *radios, **kwargs):
     radiogroup = QtWidgets.QButtonGroup()
     groupbox = QtWidgets.QGroupBox(title)
-    layout = QtWidgets.QVBoxLayout()
+    layout = QtWidgets.QGridLayout()
     checked = kwargs.pop('checked', None)
 
     self.radio_groups[radiogroup] = []
     for i, radio in enumerate(radios):
-      radio_name, radio_id = radio
+      radio_name, radio_id, radio_extra_controls = radio
       radio_widget = QtWidgets.QRadioButton(radio_name)
+
+      radiogroup.addButton(radio_widget, i)
+      layout.addWidget(radio_widget, i, 0)
+      if radio_extra_controls is not None:
+        layout.addWidget(radio_extra_controls, i, 1)
+        # if extra controller comes disabled, make sure it stays that way
+        # and also make the radio box disabled
+        if radio_extra_controls.isEnabled():
+          radio_widget.toggled.connect(radio_extra_controls.setEnabled)
+          radio_extra_controls.setEnabled(False)
+        else:
+          radio_widget.setEnabled(False)
 
       # if checked is supplied, set correct radio as checked
       # else set first radio as checked`
       if (checked is None and i == 0) or checked == radio_id:
         radio_widget.setChecked(True)
 
-      radiogroup.addButton(radio_widget, i)
-      layout.addWidget(radio_widget)
       self.radio_groups[radiogroup].append(radio_id)
     groupbox.setLayout(layout)
     self.base_layout.addWidget(groupbox)
 
     return radiogroup
 
-  def create_item_select(self, item, allow_none=True):
+  @staticmethod
+  def create_item_select(item, allow_none=True):
     response = network.query("GET", "collab/{}/".format(item), json=True)
     combobox = QtWidgets.QComboBox()
     for idx, obj in enumerate(response):
@@ -52,6 +63,8 @@ class BaseDialog(QtWidgets.QDialog):
       combobox.insertItem(idx, text, int(obj['id']))
     if allow_none:
       combobox.insertItem(0, "None", None)
+    elif combobox.count() == 0:
+      combobox.setEnabled(False)
     return combobox
 
   def get_radio_result(self, group):

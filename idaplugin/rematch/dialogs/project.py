@@ -4,7 +4,6 @@ import idc
 
 from . import base
 from .. import netnode
-from .. import network
 
 
 class AddProjectDialog(base.BaseDialog):
