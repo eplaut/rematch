@@ -46,6 +46,13 @@ class TaskEditSerializer(TaskSerializer):
   source_end = serializers.ReadOnlyField()
 
 
+class MatchSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = Match
+    fields = ('from_vector', 'to_vector', 'from_instance', 'to_instance',
+              'task', 'type', 'score')
+
+
 class InstanceSerializer(serializers.ModelSerializer):
   class NestedVectorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -74,9 +81,3 @@ class VectorSerializer(serializers.ModelSerializer):
   class Meta:
     model = Vector
     fields = ('id', 'file', 'instance', 'type', 'type_version', 'data')
-
-
-class MatchSerializer(serializers.ModelSerializer):
-  class Meta:
-    model = Match
-    fields = ('task', 'type', 'score')

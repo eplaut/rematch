@@ -7,6 +7,7 @@ router = DefaultRouter()
 router.register(r'projects', views.ProjectViewSet)
 router.register(r'files', views.FileViewSet)
 router.register(r'tasks', views.TaskViewSet)
+router.register(r'matches', views.MatchViewSet)
 router.register(r'instances', views.InstanceViewSet)
 router.register(r'vectors', views.VectorViewSet)
 

@@ -44,7 +44,6 @@ class TaskViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                   mixins.DestroyModelMixin, mixins.ListModelMixin,
                   viewsets.GenericViewSet):
   queryset = Task.objects.all()
-  serializer_class = TaskSerializer
   permission_classes = (permissions.IsAuthenticatedOrReadOnly,
                         IsOwnerOrReadOnly)
   filter_fields = ('task_id', 'created', 'finished', 'owner', 'status')
@@ -54,7 +53,7 @@ class TaskViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
     tasks.match.delay(task_id=task.id)
 
   def get_serializer_class(self):
-    serializer_class = self.serializer_class
+    serializer_class = TaskSerializer
     if self.request.method in ('PATCH', 'PUT'):
       serializer_class = TaskEditSerializer
     return serializer_class
