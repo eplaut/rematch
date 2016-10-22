@@ -44,6 +44,16 @@ class BaseDialog(QtWidgets.QDialog):
 
     return radiogroup
 
+  def create_item_select(self, item, allow_none=True):
+    response = network.query("GET", "collab/{}/".format(item), json=True)
+    combobox = QtWidgets.QComboBox()
+    for idx, obj in enumerate(response):
+      text = "{} ({})".format(obj['name'], obj['id'])
+      combobox.insertItem(idx, text, int(obj['id']))
+    if allow_none:
+      combobox.insertItem(0, "None", None)
+    return combobox
+
   def get_radio_result(self, group):
     group_ids = self.radio_groups[group]
     return group_ids[group.checkedId()]
