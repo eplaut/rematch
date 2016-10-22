@@ -52,4 +52,6 @@ class MatchDialog(base.BaseDialog):
 
     return {'source': self.get_radio_result(self.sourceGrp),
             'target': self.get_radio_result(self.targetGrp),
+            'target_project': self.target_project.currentData(),
+            'target_file': self.target_file.currentData(),
             'methods': methods}

@@ -25,6 +25,8 @@ class MatchAction(base.BoundFileAction):
 
     self.source = None
     self.target = None
+    self.target_project = None
+    self.target_file = None
     self.methods = None
 
   def get_functions(self):
@@ -49,9 +51,12 @@ class MatchAction(base.BoundFileAction):
   def get_functions_count(self):
     return len(list(self.get_functions()))
 
-  def submit_handler(self, source, target, methods):
+  def submit_handler(self, source, target, target_project, target_file,
+                     methods):
     self.source = source
     self.target = target
+    self.target_project = target_project if target == 'project' else None
+    self.target_file = target_file if target == 'file' else None
     self.methods = methods
 
     # TODO: actually use target and methods
@@ -112,7 +117,8 @@ class MatchAction(base.BoundFileAction):
     self.cancel_upload()
 
     params = {'action': 'commit', 'source_file': netnode.bound_file_id,
-              'target_project': None, 'target_file': None,
+              'target_project': self.target_project,
+              'target_file': self.target_file,
               'source': self.source, 'methods': self.methods}
     r = network.query("POST", "collab/tasks/", params=params, json=True)
     self.task_id = r['id']
