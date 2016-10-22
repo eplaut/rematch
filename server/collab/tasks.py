@@ -7,12 +7,22 @@ from celery import shared_task
 
 
 @shared_task
-def match(file_id, project_id):
+def match():
   # recording the task has started
   task = Task.objects.filter(task_id=match.request.id)
-  task_id = task.only('id')[0].id
   task.update(status=Task.STATUS_STARTED, progress=0,
               progress_max=len(matches.match_list))
+
+  # get input parameters
+  task_id, source_file, target_project, target_file = \
+    task.values('id', 'source_file_id', 'target_project_id', 'target_file_id')
+
+  base_source_vectors = Vector.objects.filter(file_id=source_file)
+  base_target_vectors = Vector.objects.exclude(file_id=source_file)
+  if target_project:
+    base_target_vectors = base_target_vectors.filter(project_id=target_project)
+  if target_file:
+    base_target_vectors = base_target_vectors.filter(file_id=target_file)
 
   print("Running task {}".format(match.request.id))
   # TODO: order might be important here
@@ -20,12 +30,9 @@ def match(file_id, project_id):
     for match_type in matches.match_list:
       print(match_type)
       start = now()
-      vectors_filter = Vector.objects.filter(type=match_type.vector_type)
-      source_vectors = vectors_filter.filter(file_id=file_id)
-      target_vectors = vectors_filter
-      if project_id:
-        target_vectors = target_vectors.filter(file_id__project_id=project_id)
-      target_vectors = target_vectors.exclude(file_id=file_id)
+      source_vectors = base_source_vectors.filter(type=match_type.vector_type)
+      target_vectors = base_target_vectors.filter(type=match_type.vector_type)
+
       if source_vectors.count() and target_vectors.count():
         match_objs = gen_match_objs(task_id, match_type, source_vectors,
                                     target_vectors)

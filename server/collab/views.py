@@ -45,10 +45,7 @@ class TaskViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                         IsOwnerOrReadOnly)
 
   def perform_create(self, serializer):
-    file_id = serializer.validated_data['file'].id
-    project = serializer.validated_data['project']
-    project_id = project.id if project else None
-    result = tasks.match.delay(file_id, project_id)
+    result = tasks.match.delay()
     serializer.save(owner=self.request.user, task_id=result.id)
 
 
