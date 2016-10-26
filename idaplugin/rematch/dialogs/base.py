@@ -55,10 +55,12 @@ class BaseDialog(QtWidgets.QDialog):
     return radiogroup
 
   @staticmethod
-  def create_item_select(item, allow_none=True):
+  def create_item_select(item, allow_none=True, exclude=None):
     response = network.query("GET", "collab/{}/".format(item), json=True)
     combobox = QtWidgets.QComboBox()
     for idx, obj in enumerate(response):
+      if exclude and obj['name'] in exclude or obj['id'] in exclude:
+        continue
       text = "{} ({})".format(obj['name'], obj['id'])
       combobox.insertItem(idx, text, int(obj['id']))
     if allow_none:

@@ -5,6 +5,7 @@ except ImportError:
   QtWidgets = QtGui
 
 from . import base
+from .. import netnode
 
 
 class MatchDialog(base.BaseDialog):
@@ -18,7 +19,8 @@ class MatchDialog(base.BaseDialog):
     self.sourceGrp = self.create_radio_group("Match source", *choices)
 
     self.target_project = self.create_item_select('projects', allow_none=False)
-    self.target_file = self.create_item_select('files', allow_none=False)
+    self.target_file = self.create_item_select('files', allow_none=False,
+                                               exclude=[netnode.bound_file_id])
     choices = [("Entire DB", 'db', None),
                ("Project", 'project', self.target_project),
                ("Another file", 'file', self.target_file)]
