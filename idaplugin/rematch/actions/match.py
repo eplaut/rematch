@@ -1,7 +1,5 @@
 from ..idasix import QtCore, QtWidgets
 import idautils
-import idaapi
-import idc
 
 from ..dialogs.match import MatchDialog
 
@@ -24,6 +22,8 @@ class MatchAction(base.BoundFileAction):
     self.instance_set = []
 
     self.source = None
+    self.source_single = None
+    self.source_range = None
     self.target = None
     self.target_project = None
     self.target_file = None
@@ -31,44 +31,39 @@ class MatchAction(base.BoundFileAction):
 
   def get_functions(self):
     if self.source == 'idb':
-      return idautils.Functions()
+      return set(idautils.Functions())
     elif self.source == 'user':
       raise NotImplementedError("All user functions are not currently "
                                 "supported as source value.")
     elif self.source == 'single':
-      func = idaapi.choose_func("Choose function to match with database",
-                                idc.ScreenEA())
-      if not func:
-        return None
-      return [func.startEA]
+      return [self.source_single]
     elif self.source == 'range':
-      raise NotImplementedError("Range of addresses is not currently "
-                                "supported as source value.")
+      return set(idautils.Functions(self.source_range[0],
+                                    self.source_range[1]))
 
     raise ValueError("Invalid source value received from MatchDialog: {}"
                      "".format(self.source))
 
-  def get_functions_count(self):
-    return len(list(self.get_functions()))
-
-  def submit_handler(self, source, target, target_project, target_file,
-                     methods):
+  def submit_handler(self, source, source_single, source_range, target,
+                     target_project, target_file, methods):
     self.source = source
+    self.source_single = source_single
+    self.source_range = source_range
     self.target = target
     self.target_project = target_project if target == 'project' else None
     self.target_file = target_file if target == 'file' else None
     self.methods = methods
 
     # TODO: actually use target and methods
-    function_gen = self.get_functions()
-    if not function_gen:
+    functions = self.get_functions()
+    if not functions:
       return False
 
-    self.function_gen = enumerate(function_gen)
+    self.function_gen = enumerate(functions)
     self.pbar = QtWidgets.QProgressDialog()
     self.pbar.setLabelText("Processing IDB... You may continue working,\nbut "
                            "please avoid making any ground-breaking changes.")
-    self.pbar.setRange(0, self.get_functions_count())
+    self.pbar.setRange(0, len(functions))
     self.pbar.setValue(0)
     self.pbar.canceled.connect(self.cancel_upload)
     self.pbar.accepted.connect(self.accepted_upload)
@@ -116,7 +111,19 @@ class MatchAction(base.BoundFileAction):
   def accepted_upload(self):
     self.cancel_upload()
 
+    if self.source == 'idb':
+      self.source_range = [None, None]
+    elif self.source == 'single':
+      self.source_range = [self.source_single, self.source_single]
+    elif self.source == 'range':
+      pass
+    else:
+      raise NotImplementedError("Unsupported source type encountered in task "
+                                "creation")
+
     params = {'action': 'commit', 'source_file': netnode.bound_file_id,
+              'source_start': self.source_range[0],
+              'source_end': self.source_range[1],
               'target_project': self.target_project,
               'target_file': self.target_file,
               'source': self.source, 'methods': self.methods}
@@ -146,6 +153,8 @@ class MatchAction(base.BoundFileAction):
       status = r['status']
       if status == 'failed':
         self.pbar.reject()
+        self.timer.stop()
+        self.timer = None
       elif progress_max:
         self.pbar.setMaximum(progress_max)
         if progress >= progress_max:

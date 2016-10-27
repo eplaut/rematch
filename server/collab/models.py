@@ -121,6 +121,9 @@ class Task(models.Model):
   action = models.CharField(max_length=16, choices=ACTION_CHOICES)
 
   source_file = models.ForeignKey(File, related_name='source_tasks')
+  # TODO: make sure start > end
+  source_start = models.PositiveIntegerField(null=True)
+  source_end = models.PositiveIntegerField(null=True)
   # TODO: make sure only at least one of target_file/target_project is null
   target_file = models.ForeignKey(File, null=True)
   target_project = models.ForeignKey(Project, null=True)

@@ -8,10 +8,12 @@ class MatchDialog(base.BaseDialog):
   def __init__(self, **kwargs):
     super(MatchDialog, self).__init__(title="Match", **kwargs)
 
+    self.source_single = base.QFunctionSelect()
+    self.source_range = base.QFunctionRangeSelect()
     choices = [("Entire IDB", 'idb', None),
                ("User functions", 'user', None),
-               ("Single function", 'single', None),
-               ("Range", 'range', None)]
+               ("Single function", 'single', self.source_single),
+               ("Range", 'range', self.source_range)]
     self.sourceGrp = self.create_radio_group("Match source", *choices)
 
     self.target_project = self.create_item_select('projects', allow_none=False)
@@ -49,6 +51,9 @@ class MatchDialog(base.BaseDialog):
       methods.append('graph')
 
     return {'source': self.get_radio_result(self.sourceGrp),
+            'source_single': self.source_single.func.startEA,
+            'source_range': [self.source_range.start.func.startEA,
+                             self.source_range.end.func.endEA],
             'target': self.get_radio_result(self.targetGrp),
             'target_project': self.target_project.currentData(),
             'target_file': self.target_file.currentData(),

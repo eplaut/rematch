@@ -8,25 +8,36 @@ from celery import shared_task
 
 @shared_task
 def match():
-  # recording the task has started
-  task = Task.objects.filter(task_id=match.request.id)
-  task.update(status=Task.STATUS_STARTED, progress=0,
-              progress_max=len(matches.match_list))
-
-  # get input parameters
-  task_id, source_file, target_project, target_file = \
-    task.values('id', 'source_file_id', 'target_project_id', 'target_file_id')
-
-  base_source_vectors = Vector.objects.filter(file_id=source_file)
-  base_target_vectors = Vector.objects.exclude(file_id=source_file)
-  if target_project:
-    base_target_vectors = base_target_vectors.filter(project_id=target_project)
-  if target_file:
-    base_target_vectors = base_target_vectors.filter(file_id=target_file)
-
-  print("Running task {}".format(match.request.id))
-  # TODO: order might be important here
   try:
+    # recording the task has started
+    task = Task.objects.filter(task_id=match.request.id)
+    task.update(status=Task.STATUS_STARTED, progress=0,
+                progress_max=len(matches.match_list))
+
+    # get input parameters
+    task_values = task.values_list('id', 'source_file_id', 'source_start',
+                                   'source_end', 'target_project_id',
+                                   'target_file_id')[0]
+    print(task_values)
+    (task_id, source_file, source_start, source_end, target_project,
+     target_file) = task_values
+
+    source_filter = {'file_id': source_file}
+    if source_start:
+      source_filter['instance__offset__gte'] = source_start
+    if source_end:
+      source_filter['instance__offset__lte'] = source_end
+    base_source_vectors = Vector.objects.filter(**source_filter)
+
+    target_filter = {'file_id__not': source_file}
+    if target_project:
+      target_filter = {'project_id': target_project}
+    elif target_file:
+      target_filter = {'file_id': target_file}
+    base_target_vectors = Vector.objects.filter(**target_filter)
+
+    print("Running task {}".format(match.request.id))
+    # TODO: order might be important here
     for match_type in matches.match_list:
       print(match_type)
       start = now()

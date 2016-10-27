@@ -1,4 +1,7 @@
-from ..idasix import QtWidgets
+from ..idasix import QtWidgets, QtCore
+
+import idaapi
+import idc
 
 from .. import network
 
@@ -24,6 +27,7 @@ class BaseDialog(QtWidgets.QDialog):
     radiogroup = QtWidgets.QButtonGroup()
     groupbox = QtWidgets.QGroupBox(title)
     layout = QtWidgets.QGridLayout()
+    layout.setColumnStretch(1, 1)
     checked = kwargs.pop('checked', None)
 
     self.radio_groups[radiogroup] = []
@@ -32,9 +36,9 @@ class BaseDialog(QtWidgets.QDialog):
       radio_widget = QtWidgets.QRadioButton(radio_name)
 
       radiogroup.addButton(radio_widget, i)
-      layout.addWidget(radio_widget, i, 0)
+      layout.addWidget(radio_widget, i, 0, QtCore.Qt.AlignTop)
       if radio_extra_controls is not None:
-        layout.addWidget(radio_extra_controls, i, 1)
+        layout.addWidget(radio_extra_controls, i, 1, QtCore.Qt.AlignTop)
         # if extra controller comes disabled, make sure it stays that way
         # and also make the radio box disabled
         if radio_extra_controls.isEnabled():
@@ -59,7 +63,7 @@ class BaseDialog(QtWidgets.QDialog):
     response = network.query("GET", "collab/{}/".format(item), json=True)
     combobox = QtWidgets.QComboBox()
     for idx, obj in enumerate(response):
-      if exclude and obj['name'] in exclude or obj['id'] in exclude:
+      if exclude and (obj['name'] in exclude or obj['id'] in exclude):
         continue
       text = "{} ({})".format(obj['name'], obj['id'])
       combobox.insertItem(idx, text, int(obj['id']))
@@ -152,3 +156,72 @@ class BaseDialog(QtWidgets.QDialog):
     data = dialog.data()
 
     return data, result == QtWidgets.QDialog.Accepted
+
+
+class QFunctionSelect(QtWidgets.QWidget):
+  changed = QtCore.Signal()
+
+  def __init__(self, text_max_length=30, **kwargs):
+    super(QFunctionSelect, self).__init__(**kwargs)
+
+    self.text_max = text_max_length
+
+    self.label = QtWidgets.QPushButton()
+    self.label.clicked.connect(self.label_clicked)
+    self.label.setFlat(True)
+    self.btn = QtWidgets.QPushButton("...")
+    self.btn.setMaximumWidth(20)
+    self.btn.clicked.connect(self.btn_clicked)
+
+    self.set_func(idaapi.get_func(idc.ScreenEA()))
+
+    layout = QtWidgets.QHBoxLayout()
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.addWidget(self.label)
+    layout.addWidget(self.btn)
+    layout.setStretch(0, 1)
+    self.setLayout(layout)
+
+  def set_func(self, func):
+    self.func = func
+    text = idc.GetFunctionName(self.func.startEA)
+    text = text[:self.text_max] + "..." if len(text) > self.text_max else text
+    self.label.setText(text)
+
+  def label_clicked(self, checked):
+    del checked
+    idc.Jump(self.func.startEA)
+
+  def btn_clicked(self, checked):
+    del checked
+    f = idaapi.choose_func("Choose function to match with database",
+                           self.func.startEA)
+    if f:
+      self.set_func(f)
+      self.changed.emit()
+
+
+class QFunctionRangeSelect(QtWidgets.QWidget):
+  def __init__(self, text_max_length=30, **kwargs):
+    super(QFunctionRangeSelect, self).__init__(**kwargs)
+    self.start = QFunctionSelect(text_max_length=text_max_length)
+    self.start.changed.connect(self.selection_changed)
+    self.end = QFunctionSelect(text_max_length=text_max_length)
+    self.end.changed.connect(self.selection_changed)
+
+    layout = QtWidgets.QGridLayout()
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.addWidget(QtWidgets.QLabel("From"), 0, 0)
+    layout.addWidget(QtWidgets.QLabel("To"), 1, 0)
+    layout.addWidget(self.start, 0, 1)
+    layout.addWidget(self.end, 1, 1)
+
+    self.setLayout(layout)
+
+  def selection_changed(self):
+    if self.start.func.startEA < self.end.func.endEA:
+      return
+
+    start_func = self.start.func
+    self.start.set_func(self.end.func)
+    self.end.set_func(start_func)

@@ -35,7 +35,7 @@ class TaskSerializer(serializers.ModelSerializer):
     model = Task
     fields = ('id', 'task_id', 'created', 'finished', 'owner', 'status',
               'action', 'target_project', 'target_file', 'source_file',
-              'progress', 'progress_max')
+              'source_start', 'source_end', 'progress', 'progress_max')
 
 
 class InstanceSerializer(serializers.ModelSerializer):
