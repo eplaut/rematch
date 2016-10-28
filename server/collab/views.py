@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions, mixins
 from collab.models import Project, File, Task, Instance, Vector
 from collab.serializers import (ProjectSerializer, FileSerializer,
-                                TaskSerializer, InstanceSerializer,
-                                VectorSerializer)
+                                TaskSerializer, TaskEditSerializer,
+                                InstanceSerializer, VectorSerializer)
 from collab.permissions import IsOwnerOrReadOnly
 from collab import tasks
 
@@ -47,6 +47,12 @@ class TaskViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin,
   def perform_create(self, serializer):
     result = tasks.match.delay()
     serializer.save(owner=self.request.user, task_id=result.id)
+
+  def get_serializer_class(self):
+    serializer_class = self.serializer_class
+    if self.request.method in ('PATCH', 'PUT'):
+      serializer_class = TaskEditSerializer
+    return serializer_class
 
 
 class InstanceViewSet(ViewSetManyAllowedMixin, ViewSetOwnerMixin,

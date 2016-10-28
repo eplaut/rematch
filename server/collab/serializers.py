@@ -38,6 +38,14 @@ class TaskSerializer(serializers.ModelSerializer):
               'source_end', 'progress', 'progress_max')
 
 
+class TaskEditSerializer(TaskSerializer):
+  target_project = serializers.ReadOnlyField()
+  target_file = serializers.ReadOnlyField()
+  source_file = serializers.ReadOnlyField()
+  source_start = serializers.ReadOnlyField()
+  source_end = serializers.ReadOnlyField()
+
+
 class InstanceSerializer(serializers.ModelSerializer):
   class NestedVectorSerializer(serializers.ModelSerializer):
     class Meta:
