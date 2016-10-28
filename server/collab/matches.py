@@ -19,7 +19,6 @@ class HashMatch(Match):
   @classmethod
   def match(cls, source, target):
     # unique_values = set(source_dict.values())
-    print(source.count(), target.count())
     flipped_rest = collections.defaultdict(list)
     # TODO: could be optimized by enumerating all identity matchs together
     target_values = target.values_list('id', 'instance_id', 'data').iterator()
@@ -59,15 +58,10 @@ class HistogramMatch(Match):
     target_data = dictvect.transform([json.loads(d) for d in target_data])
     source_matrix = skl.preprocessing.normalize(source_data, axis=1, norm='l1')
     target_matrix = skl.preprocessing.normalize(target_data, axis=1, norm='l1')
-    print(type(source_matrix))
-    print(source_matrix.shape)
-    print(type(target_matrix))
-    print(target_matrix.shape)
     for source_i in range(source_matrix.shape[0]):
       source_vector = source_matrix[source_i].toarray()
       source_id = source_ids[source_i]
       source_instance_id = source_instance_ids[source_i]
-      print(source_i)
 
       for target_i in range(target_matrix.shape[0]):
         target_vector = target_matrix[target_i].toarray()

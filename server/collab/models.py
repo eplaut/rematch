@@ -99,16 +99,7 @@ class Task(models.Model):
                     (STATUS_STARTED, "Started"),
                     (STATUS_DONE, "Done!"),
                     (STATUS_FAILED, "Failure"))
-  ACTION_COMMIT = "commit"
-  ACTION_MATCH = "match"
-  ACTION_UPDATE = "update"
-  ACTION_CLUSTER = "cluster"
-  ACTION_CHOICES = ((ACTION_COMMIT, "Commit"),
-                    (ACTION_MATCH, "Match"),
-                    (ACTION_UPDATE, "Update"),
-                    (ACTION_CLUSTER, "Cluster"))
 
-  # TODO: to uuid field
   task_id = models.UUIDField(db_index=True, unique=True, editable=False)
 
   # store matched objects
@@ -118,7 +109,6 @@ class Task(models.Model):
   owner = models.ForeignKey(User, db_index=True)
   status = models.CharField(default=STATUS_PENDING, max_length=16,
                             choices=STATUS_CHOICES)
-  action = models.CharField(max_length=16, choices=ACTION_CHOICES)
 
   source_file = models.ForeignKey(File, related_name='source_tasks')
   # TODO: make sure start > end

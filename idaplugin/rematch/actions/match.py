@@ -18,7 +18,6 @@ class MatchAction(base.BoundFileAction):
     self.pbar = None
     self.timer = None
     self.task_id = None
-    self.pbar = None
     self.instance_set = []
 
     self.source = None
@@ -54,7 +53,6 @@ class MatchAction(base.BoundFileAction):
     self.target_file = target_file if target == 'file' else None
     self.methods = methods
 
-    # TODO: actually use target and methods
     functions = self.get_functions()
     if not functions:
       return False
@@ -121,7 +119,7 @@ class MatchAction(base.BoundFileAction):
       raise NotImplementedError("Unsupported source type encountered in task "
                                 "creation")
 
-    params = {'action': 'commit', 'source_file': netnode.bound_file_id,
+    params = {'source_file': netnode.bound_file_id,
               'source_start': self.source_range[0],
               'source_end': self.source_range[1],
               'target_project': self.target_project,
