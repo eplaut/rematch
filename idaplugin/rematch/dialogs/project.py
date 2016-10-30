@@ -53,7 +53,7 @@ class AddFileDialog(base.BaseDialog):
     gridLyt.addWidget(QtWidgets.QLabel("Description:"), 2, 0)
     gridLyt.addWidget(QtWidgets.QLabel("MD5 hash:"), 3, 0)
 
-    self.projectCbb = self.create_item_select('projects')
+    self.projectCbb = base.QItemSelect('projects')
     gridLyt.addWidget(self.projectCbb, 0, 1)
 
     self.nameTxt = QtWidgets.QLineEdit()

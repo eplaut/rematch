@@ -14,15 +14,17 @@ class MatchDialog(base.BaseDialog):
                ("User functions", 'user', None),
                ("Single function", 'single', self.source_single),
                ("Range", 'range', self.source_range)]
-    self.sourceGrp = self.create_radio_group("Match source", *choices)
+    self.sourceGrp = base.QRadioGroup("Match source", *choices)
+    self.base_layout.addWidget(self.sourceGrp)
 
-    self.target_project = self.create_item_select('projects', allow_none=False)
-    self.target_file = self.create_item_select('files', allow_none=False,
-                                               exclude=[netnode.bound_file_id])
+    self.target_project = base.QItemSelect('projects', allow_none=False)
+    self.target_file = base.QItemSelect('files', allow_none=False,
+                                        exclude=[netnode.bound_file_id])
     choices = [("Entire DB", 'db', None),
                ("Project", 'project', self.target_project),
                ("Another file", 'file', self.target_file)]
-    self.targetGrp = self.create_radio_group("Match target", *choices)
+    self.targetGrp = base.QRadioGroup("Match target", *choices)
+    self.base_layout.addWidget(self.targetGrp)
 
     self.identity = QtWidgets.QCheckBox("Identify matches")
     self.fuzzy = QtWidgets.QCheckBox("Fuzzy matches")
@@ -50,11 +52,11 @@ class MatchDialog(base.BaseDialog):
     if self.graph.isChecked():
       methods.append('graph')
 
-    return {'source': self.get_radio_result(self.sourceGrp),
+    return {'source': self.sourceGrp.get_result(),
             'source_single': self.source_single.func.startEA,
             'source_range': [self.source_range.start.func.startEA,
                              self.source_range.end.func.endEA],
-            'target': self.get_radio_result(self.targetGrp),
+            'target': self.targetGrp.get_result(),
             'target_project': self.target_project.currentData(),
             'target_file': self.target_file.currentData(),
             'methods': methods}

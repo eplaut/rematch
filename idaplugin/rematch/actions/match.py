@@ -64,7 +64,8 @@ class MatchAction(base.BoundFileAction):
     self.pbar.setRange(0, len(functions))
     self.pbar.setValue(0)
     self.pbar.canceled.connect(self.cancel_upload)
-    self.pbar.accepted.connect(self.accepted_upload)
+    self.pbar.rejected.connect(self.reject_upload)
+    self.pbar.accepted.connect(self.accept_upload)
 
     self.timer = QtCore.QTimer()
     self.timer.timeout.connect(self.perform_upload)
@@ -106,7 +107,10 @@ class MatchAction(base.BoundFileAction):
     self.timer = None
     self.pbar = None
 
-  def accepted_upload(self):
+  def reject_upload(self):
+    self.cancel_upload()
+
+  def accept_upload(self):
     self.cancel_upload()
 
     if self.source == 'idb':
@@ -134,7 +138,8 @@ class MatchAction(base.BoundFileAction):
     self.pbar.setRange(0, int(r['progress_max']) if r['progress_max'] else 0)
     self.pbar.setValue(int(r['progress']))
     self.pbar.canceled.connect(self.cancel_task)
-    self.pbar.accepted.connect(self.accepted_task)
+    self.pbar.rejected.connect(self.reject_task)
+    self.pbar.accepted.connect(self.accept_task)
     self.pbar.show()
 
     self.timer = QtCore.QTimer()
@@ -151,8 +156,6 @@ class MatchAction(base.BoundFileAction):
       status = r['status']
       if status == 'failed':
         self.pbar.reject()
-        self.timer.stop()
-        self.timer = None
       elif progress_max:
         self.pbar.setMaximum(progress_max)
         if progress >= progress_max:
@@ -168,5 +171,8 @@ class MatchAction(base.BoundFileAction):
     self.timer = None
     self.pbar = None
 
-  def accepted_task(self):
+  def reject_task(self):
+    self.cancel_task()
+
+  def accept_task(self):
     self.cancel_task()

@@ -18,64 +18,9 @@ class BaseDialog(QtWidgets.QDialog):
     self.exception_handler = exception_handler
     self.response = None
     self.statusLbl = None
-    self.radio_groups = {}
 
     self.base_layout = QtWidgets.QVBoxLayout()
     self.setLayout(self.base_layout)
-
-  def create_radio_group(self, title, *radios, **kwargs):
-    radiogroup = QtWidgets.QButtonGroup()
-    groupbox = QtWidgets.QGroupBox(title)
-    layout = QtWidgets.QGridLayout()
-    layout.setColumnStretch(1, 1)
-    checked = kwargs.pop('checked', None)
-
-    self.radio_groups[radiogroup] = []
-    for i, radio in enumerate(radios):
-      radio_name, radio_id, radio_extra_controls = radio
-      radio_widget = QtWidgets.QRadioButton(radio_name)
-
-      radiogroup.addButton(radio_widget, i)
-      layout.addWidget(radio_widget, i, 0, QtCore.Qt.AlignTop)
-      if radio_extra_controls is not None:
-        layout.addWidget(radio_extra_controls, i, 1, QtCore.Qt.AlignTop)
-        # if extra controller comes disabled, make sure it stays that way
-        # and also make the radio box disabled
-        if radio_extra_controls.isEnabled():
-          radio_widget.toggled.connect(radio_extra_controls.setEnabled)
-          radio_extra_controls.setEnabled(False)
-        else:
-          radio_widget.setEnabled(False)
-
-      # if checked is supplied, set correct radio as checked
-      # else set first radio as checked`
-      if (checked is None and i == 0) or checked == radio_id:
-        radio_widget.setChecked(True)
-
-      self.radio_groups[radiogroup].append(radio_id)
-    groupbox.setLayout(layout)
-    self.base_layout.addWidget(groupbox)
-
-    return radiogroup
-
-  @staticmethod
-  def create_item_select(item, allow_none=True, exclude=None):
-    response = network.query("GET", "collab/{}/".format(item), json=True)
-    combobox = QtWidgets.QComboBox()
-    for idx, obj in enumerate(response):
-      if exclude and (obj['name'] in exclude or obj['id'] in exclude):
-        continue
-      text = "{} ({})".format(obj['name'], obj['id'])
-      combobox.insertItem(idx, text, int(obj['id']))
-    if allow_none:
-      combobox.insertItem(0, "None", None)
-    elif combobox.count() == 0:
-      combobox.setEnabled(False)
-    return combobox
-
-  def get_radio_result(self, group):
-    group_ids = self.radio_groups[group]
-    return group_ids[group.checkedId()]
 
   def bottom_layout(self, ok_text="&Ok", cencel_text="&Cancel"):
     self.statusLbl = QtWidgets.QLabel()
@@ -156,6 +101,86 @@ class BaseDialog(QtWidgets.QDialog):
     data = dialog.data()
 
     return data, result == QtWidgets.QDialog.Accepted
+
+
+class QItemSelect(QtWidgets.QComboBox):
+  def __init__(self, item, name_field='name', id_field='id', allow_none=True,
+               exclude=None, default_id=None):
+    super(QItemSelect, self).__init__()
+    self.item = item
+    self.name_field = name_field
+    self.id_field = id_field
+    self.allow_none = allow_none
+    self.exclude = exclude
+    self.default_id = default_id
+
+    self.refresh()
+
+  def refresh(self):
+    response = network.query("GET", "collab/{}/".format(self.item), json=True)
+
+    # copy currently selected or get default
+    if self.currentIndex() == -1:
+      selected_id = self.default_id
+    else:
+      self.currentData()
+
+    # only clear after response is received
+    self.clear()
+    for idx, obj in enumerate(response):
+      item_name = obj[self.name_field]
+      item_id = obj[self.id_field]
+      if self.exclude and (item_name in self.exclude or
+                           item_id in self.exclude):
+        continue
+
+      text = "{} ({})".format(item_name, item_id)
+      self.insertItem(idx, text, int(item_id))
+      if item_id == selected_id:
+        self.setCurrentIndex(idx)
+
+    if self.allow_none:
+      self.insertItem(0, "None", None)
+    elif self.count() == 0:
+      self.setEnabled(False)
+
+
+class QRadioGroup(QtWidgets.QGroupBox):
+  def __init__(self, title, *radios, **kwargs):
+    checked = kwargs.pop('checked', None)
+
+    super(QRadioGroup, self).__init__(title, **kwargs)
+
+    self.radiogroup = QtWidgets.QButtonGroup()
+    layout = QtWidgets.QGridLayout()
+    layout.setColumnStretch(1, 1)
+
+    for i, radio in enumerate(radios):
+      radio_name, radio_id, radio_extra_controls = radio
+      radio_widget = QtWidgets.QRadioButton(radio_name)
+      radio_widget.setObjectName(radio_id)
+
+      self.radiogroup.addButton(radio_widget, i)
+      layout.addWidget(radio_widget, i, 0, QtCore.Qt.AlignTop)
+      if radio_extra_controls is not None:
+        layout.addWidget(radio_extra_controls, i, 1, QtCore.Qt.AlignTop)
+        # if extra controller comes disabled, make sure it stays that way
+        # and also make the radio box disabled
+        if radio_extra_controls.isEnabled():
+          radio_widget.toggled.connect(radio_extra_controls.setEnabled)
+          radio_extra_controls.setEnabled(False)
+        else:
+          radio_widget.setEnabled(False)
+
+      # if checked is supplied, set correct radio as checked
+      # else set first radio as checked`
+      if (checked is None and i == 0) or checked == radio_id:
+        radio_widget.setChecked(True)
+
+    self.setLayout(layout)
+
+  def get_result(self):
+    return self.radiogroup.checkedButton().objectName()
 
 
 class QFunctionSelect(QtWidgets.QWidget):

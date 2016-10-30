@@ -31,7 +31,7 @@ def match():
 
     target_filter = {'file_id__not': source_file}
     if target_project:
-      target_filter = {'project_id': target_project}
+      target_filter = {'file__project_id': target_project}
     elif target_file:
       target_filter = {'file_id': target_file}
     base_target_vectors = Vector.objects.filter(**target_filter)
