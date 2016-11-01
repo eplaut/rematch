@@ -1,36 +1,7 @@
 import json
 
 from urllib2 import HTTPError, URLError
-
-
-def factory(ex):
-  if isinstance(ex, HTTPError):
-    response_text = ex.read()
-    try:
-      response = json.loads(response_text)
-    except Exception:
-      response = response_text
-    ex_cls = None
-    if ex.code == 500:
-      ex_cls = ServerException
-    elif ex.code == 401:
-      ex_cls = AuthenticationException
-    elif ex.code == 404:
-      ex_cls = NotFoundException
-    elif ex.code == 400:
-      if isinstance(response, dict) and "Invalid pk" in response['file'][0]:
-        ex_cls = UnknownObjectReferenceException
-      else:
-        ex_cls = QueryException
-
-    if ex_cls:
-      raise ex_cls(response=response, code=ex.code)
-  elif isinstance(ex, URLError):
-    raise ConnectionException(reason=ex.reason)
-
-  import traceback
-  tb = traceback.format_exc()
-  raise Exception("Couldn't factor an exception: {}".format(tb))
+from traceback import format_exc
 
 
 class RematchException(Exception):
@@ -81,3 +52,38 @@ class AuthenticationException(RematchException):
 class NotFoundException(QueryException):
   message = ("Asset not found. This could be either a plugin error or a "
              "server error.")
+
+
+def factory(ex):
+  if isinstance(ex, HTTPError):
+    response_text = ex.read()
+    try:
+      response = json.loads(response_text)
+    except Exception:
+      response = response_text
+    ex_cls = None
+    if ex.code == 500:
+      ex_cls = ServerException
+    elif ex.code == 401:
+      ex_cls = AuthenticationException
+    elif ex.code == 404:
+      ex_cls = NotFoundException
+    elif ex.code == 400:
+      ex_cls = handle_400(response)
+
+    if ex_cls:
+      raise ex_cls(response=response, code=ex.code)
+  elif isinstance(ex, URLError):
+    raise ConnectionException(reason=ex.reason)
+
+  tb = format_exc()
+  raise Exception("Couldn't factor an exception: {}".format(tb))
+
+
+def handle_400(resp):
+  exception = QueryException
+
+  if isinstance(resp, dict) and "Invalid pk" in resp['file'][0]:
+    exception = UnknownObjectReferenceException
+
+  return exception
