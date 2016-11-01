@@ -71,7 +71,7 @@ def factory(ex):
     elif ex.code == 400:
       ex_cls = handle_400(response)
 
-    if ex_cls:
+    if ex_cls is not None:
       raise ex_cls(response=response, code=ex.code)
   elif isinstance(ex, URLError):
     raise ConnectionException(reason=ex.reason)
@@ -81,9 +81,7 @@ def factory(ex):
 
 
 def handle_400(resp):
-  exception = QueryException
-
   if isinstance(resp, dict) and "Invalid pk" in resp['file'][0]:
-    exception = UnknownObjectReferenceException
-
-  return exception
+    return UnknownObjectReferenceException
+  else:
+    return QueryException
