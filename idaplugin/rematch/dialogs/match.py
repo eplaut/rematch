@@ -10,8 +10,11 @@ class MatchDialog(base.BaseDialog):
 
     self.source_single = base.QFunctionSelect()
     self.source_range = base.QFunctionRangeSelect()
+    lbl = QtWidgets.QLabel("")
+    lbl.setDisabled(True)
+    lbl.setToolTip("Matching only user functions functionality is not currently supported. Plese express your need of this functionality at our github.")
     choices = [("Entire IDB", 'idb', None),
-               ("User functions", 'user', None),
+               ("User functions", 'user', lbl),
                ("Single function", 'single', self.source_single),
                ("Range", 'range', self.source_range)]
     self.sourceGrp = base.QRadioGroup("Match source", *choices)
@@ -38,6 +41,8 @@ class MatchDialog(base.BaseDialog):
     methodLyt.addWidget(self.graph)
 
     methodGbx = QtWidgets.QGroupBox("Match methods")
+    methodGbx.setDisabled(True)
+    methodGbx.setToolTip("Match method control functionality is not currently supported. Plese express your need of this functionality at our github.")
     methodGbx.setLayout(methodLyt)
     self.base_layout.addWidget(methodGbx)
 

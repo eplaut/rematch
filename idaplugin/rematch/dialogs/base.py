@@ -171,6 +171,10 @@ class QRadioGroup(QtWidgets.QGroupBox):
           radio_extra_controls.setEnabled(False)
         else:
           radio_widget.setEnabled(False)
+        # if extra controller comse with a tooltip, copy that tooltip to
+        # radio button itself
+        if radio_extra_controls.toolTip():
+          radio_widget.setToolTip(radio_extra_controls.toolTip())
 
       # if checked is supplied, set correct radio as checked
       # else set first radio as checked`
