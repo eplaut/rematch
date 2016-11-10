@@ -22,7 +22,7 @@ We've noticed that although there are more than several existing binary matching
 3. Fully integrated into IDA.
 4. Allows managing multiple projects in a single location.
 5. Enables out of the box one vs. many matches.
-6. Actively maintained
+6. Actively maintained.
 
 # Current state (30th of August, 2016)
 
