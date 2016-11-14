@@ -6,4 +6,4 @@ if [ $has_admin -eq 0 ]; then
     echo "Creating admin super user, please enter password"
     python ./manage.py createsuperuser --username admin --email admin@local.com
 fi
-sudo python manage.py runserver 192.168.152.138:80
+python manage.py runserver -v 3
