@@ -1,7 +1,7 @@
 #!/bin/bash
 
-./manage.py makemigrations collab
-./manage.py migrate
+python ./manage.py makemigrations collab
+python ./manage.py migrate
 has_admin=$(echo "select count(*) from auth_user where username='admin';" | ./manage.py dbshell)
 if [ $has_admin -eq 0 ]; then
     echo "Creating admin super user, please enter password"
