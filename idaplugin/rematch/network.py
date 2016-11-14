@@ -12,8 +12,13 @@ from . import config, logger
 cookiejar = CookieJar()
 opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
 
-_threadpool = QtCore.QThreadPool()
-_threadpool.setMaxThreadCount(config['network']['threadcount'])
+try:
+  _threadpool = QtCore.QThreadPool()
+  _threadpool.setMaxThreadCount(config['network']['threadcount'])
+except KeyError as err:
+ from . import config
+ print "config not found! creating one!"
+ config = config.Config()
 
 
 class WorkerSignals(QtCore.QObject):
