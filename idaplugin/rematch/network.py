@@ -147,7 +147,7 @@ def get_headers(token, json):
   if token is None and token not in config['login']:
     if config['login']['token'] is not None:
       token = config['login']['token']
-  if token:
+ if token:
     headers['Authorization'] = 'Token {}'.format(token)
 
   return headers
