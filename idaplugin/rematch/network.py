@@ -115,15 +115,20 @@ def query(method, url, server=None, token=None, params=None, json=False):
 def get_server(server):
   """getting and finalzing server address"""
 
-  if not server:
-    if 'server' not in config or not config['server']:
-      raise exceptions.QueryException()
-    server = config['server']
-  if not (server.startswith("http://") or server.startswith("http://")):
-    server = "http://" + server
-  if not server.endswith("/"):
-    server = server + "/"
-
+  try:
+    if not server:
+      if 'server' not in config and not config['login']['server']:
+        raise exceptions.QueryException()
+      server = config['login']['server']
+    if not (server.startswith("http://") or server.startswith("http://")):
+      server = "http://" + server
+    if not server.endswith("/"):
+      server = server + "/"
+  except:
+    import traceback
+    import sys
+    traceback.print_exc()
+    traceback.print_exception(*sys.exc_info())
   return server
 
 
