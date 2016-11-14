@@ -130,8 +130,8 @@ def get_headers(token, json):
   if json:
     headers['Accept'] = 'application/json, text/html, */*'
     headers['Content-Type'] = 'application/json'
-  if token is None and 'token' in config and config['token']:
-    token = config['token']
+  if token is None and 'token' in config and config['login']['token']:
+    token = config['login']['token']
   if token:
     headers['Authorization'] = 'Token {}'.format(token)
 

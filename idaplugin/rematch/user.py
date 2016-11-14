@@ -43,7 +43,7 @@ class User(dict):
 
     # save functioning token
     if self['is_authenticated']:
-      config['token'] = token
+      config['login']['token'] = token
       config.save()
 
     return self['is_authenticated']
@@ -54,7 +54,7 @@ class User(dict):
     except exceptions.AuthenticationException:
       pass
     if 'token' in config:
-      del config['token']
+      del config['config']['token']
     self.refresh()
 
   def refresh(self):
@@ -64,7 +64,7 @@ class User(dict):
     try:
       self.update(network.query("GET", "accounts/profile/", json=True))
     except exceptions.AuthenticationException:
-      del config['token']
+      del config['config']['token']
     except exceptions.NotFoundException:
       pass
 
