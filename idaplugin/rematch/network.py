@@ -120,21 +120,18 @@ def get_server(server):
   """getting and finalzing server address"""
 
   try:
-    if server is None and config['login']['server'] == "":
-      raise exceptions.ServerNotConfiguredException()
-    if not server:
-      if 'server' not in config['login']:
+   if not server:
+      if 'server' not in config and not config['login']['server']:
         raise exceptions.QueryException()
       server = config['login']['server']
     if not (server.startswith("http://") or server.startswith("http://")):
       server = "http://" + server
     if not server.endswith("/"):
       server = server + "/"
-
   except:
     import traceback
     traceback.print_exc()
-  return server
+ return server
 
 
 def get_headers(token, json):
@@ -148,6 +145,6 @@ def get_headers(token, json):
     if config['login']['token'] is not None:
       token = config['login']['token']
  if token:
-    headers['Authorization'] = 'Token {}'.format(token)
+   headers['Authorization'] = 'Token {}'.format(token)
 
   return headers
