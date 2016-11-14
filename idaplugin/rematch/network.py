@@ -17,7 +17,6 @@ try:
   _threadpool.setMaxThreadCount(config['network']['threadcount'])
 except KeyError as err:
  from . import config
- print "config not found! creating one!"
  config = config.Config()
 
 
