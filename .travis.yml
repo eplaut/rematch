@@ -41,4 +41,7 @@ install:
   - if [ -f ${PROJECT}/requirements.txt ]; then pip install -r ${PROJECT}/requirements.txt ; fi
   - pip install flake8
 
-script: flake8 ${PROJECT} --show-source --statistics
+script:
+  - flake8 ${PROJECT} --show-source --statistics
+  - py.test ${PROJECT} --verbose ; err=$? ; if (( $err != 5 )) ; then exit $err ; fi
+    
