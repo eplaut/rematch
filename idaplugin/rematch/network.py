@@ -107,6 +107,10 @@ def query(method, url, server=None, token=None, params=None, json=False):
     logger('network').info("[response] {}".format(return_obj))
     return return_obj
   except Exception as ex:
+    import traceback
+    import sys
+    traceback.print_exc()
+    traceback.print_exception(*sys.exc_info())
     rematch_ex = exceptions.factory(ex)
     logger('network').debug(rematch_ex)
     raise rematch_ex
@@ -139,7 +143,7 @@ def get_headers(token, json):
   if json:
     headers['Accept'] = 'application/json, text/html, */*'
     headers['Content-Type'] = 'application/json'
-  if token is None and 'token' in config and config['login']['token']:
+  if token is None and config['login']['token']:
     token = config['login']['token']
   if token:
     headers['Authorization'] = 'Token {}'.format(token)
