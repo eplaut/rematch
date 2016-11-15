@@ -23,7 +23,7 @@ class User(dict):
         return
 
       if 'username' in config and 'password' in config and 'server' in config:
-        self.login(config['username'], config['password'], config['server'])
+        self.login(config['login']['username'], config['login']['password'], config['login']['server'])
     except exceptions.RematchException as ex:
       logger('user').debug(ex)
       self.update(self.LOGGEDOUT_USER)
