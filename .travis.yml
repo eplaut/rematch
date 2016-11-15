@@ -40,6 +40,7 @@ install:
       conda info -a;
       conda update --yes conda;
       conda install --yes python=${TRAVIS_PYTHON_VERSION} atlas numpy scipy scikit-learn;
+      pip install mysql-python
     fi;
   - if [ -f ${PROJECT}/requirements.txt ]; then pip install -r ${PROJECT}/requirements.txt ; fi
   - if [ -f tests/requirements.txt ]; then pip install -r tests/requirements.txt ; fi
