@@ -43,5 +43,5 @@ install:
 
 script:
   - flake8 ./${PROJECT} --show-source --statistics
-  - py.test ./${PROJECT} ./tests/${PROJECT} --verbose ; err=$? ; if (( $err != 5 )) ; then exit $err ; fi
+  - if [ -d ./tests/{PROJECT} ]; then py.test ./${PROJECT} ./tests/${PROJECT} --verbose ; fi
     
