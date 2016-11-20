@@ -62,10 +62,13 @@ class User(dict):
     self.clear()
     self.update(self.LOGGEDOUT_USER)
 
+    if not ('token' in config['login'] and config['login']['token']):
+      return
+
     try:
       self.update(network.query("GET", "accounts/profile/", json=True))
     except exceptions.AuthenticationException:
-      del config['config']['token']
+      del config['login']['token']
     except exceptions.NotFoundException:
       pass
 
