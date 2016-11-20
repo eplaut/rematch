@@ -5,13 +5,13 @@ from . import logger
 
 
 class Config(dict):
-  DEFAULT = {"debug": True,
+  DEFAULT = {"debug": False,
              "git": {"owner": "nirizr",
                      "repository": "rematch",
                      "server": "http://api.github.com"},
-             "login": {"username": "admin",
-                       "password": "admin",
-                       "server": "http://beta.rematch.re",
+             "login": {"username": "",
+                       "password": "",
+                       "server": "",
                        },
              "settings": {"update": {"autocheck": True,
                                      "autoupdate": True},

@@ -12,12 +12,8 @@ from . import config, logger
 cookiejar = CookieJar()
 opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cookiejar))
 
-try:
-  _threadpool = QtCore.QThreadPool()
-  _threadpool.setMaxThreadCount(config['network']['threadcount'])
-except KeyError as err:
- from . import config
- config = config.Config()
+_threadpool = QtCore.QThreadPool()
+_threadpool.setMaxThreadCount(config['network']['threadcount'])
 
 
 class WorkerSignals(QtCore.QObject):
@@ -108,9 +104,7 @@ def query(method, url, server=None, token=None, params=None, json=False):
     return return_obj
   except Exception as ex:
     import traceback
-    import sys
-    traceback.print_exc()
-    traceback.print_exception(*sys.exc_info())
+    logger.network('network').error(traceback.print_exc())
     rematch_ex = exceptions.factory(ex)
     logger('network').debug(rematch_ex)
     raise rematch_ex
@@ -121,17 +115,17 @@ def get_server(server):
 
   try:
    if not server:
-      if 'server' not in config and not config['login']['server']:
-        raise exceptions.QueryException()
-      server = config['login']['server']
-    if not (server.startswith("http://") or server.startswith("http://")):
-      server = "http://" + server
-    if not server.endswith("/"):
-      server = server + "/"
+    if 'server' not in config and not config['login']['server']:
+      raise exceptions.QueryException()
+    server = config['login']['server']
+   if not (server.startswith("http://") or server.startswith("http://")):
+     server = "http://" + server
+   if not server.endswith("/"):
+     server = server + "/"
   except:
     import traceback
-    traceback.print_exc()
- return server
+    logger.network('network').error(traceback.print_exc())
+  return server
 
 
 def get_headers(token, json):
@@ -141,10 +135,9 @@ def get_headers(token, json):
   if json:
     headers['Accept'] = 'application/json, text/html, */*'
     headers['Content-Type'] = 'application/json'
-  if token is None and token not in config['login']:
-    if config['login']['token'] is not None:
-      token = config['login']['token']
- if token:
-   headers['Authorization'] = 'Token {}'.format(token)
+  if token is None and token in config['login']:
+    token = config['login']['token']
+  if token:
+    headers['Authorization'] = 'Token {}'.format(token)
 
   return headers
