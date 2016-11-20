@@ -80,13 +80,13 @@ def query(method, url, server=None, token=None, params=None, json=False):
   if method not in ("GET", "POST"):
     raise exceptions.QueryException()
 
-  full_url = get_server(server) + url
+  server_url = get_server(server)
+  full_url = server_url + url
   headers = get_headers(token, json)
 
   logger('network').info("[query] {full_url}{headers}{params}"
                          "".format(full_url=full_url, headers=headers,
                                    params=params))
-
   # issue request
   try:
     if method == "GET":
@@ -120,19 +120,20 @@ def get_server(server):
   """getting and finalzing server address"""
 
   try:
+    if server is None and config['login']['server'] == "":
+      raise exceptions.ServerNotConfiguredException()
     if not server:
-      if 'server' not in config and not config['login']['server']:
+      if 'server' not in config['login']:
         raise exceptions.QueryException()
       server = config['login']['server']
     if not (server.startswith("http://") or server.startswith("http://")):
       server = "http://" + server
     if not server.endswith("/"):
       server = server + "/"
+
   except:
     import traceback
-    import sys
     traceback.print_exc()
-    traceback.print_exception(*sys.exc_info())
   return server
 
 
@@ -143,8 +144,9 @@ def get_headers(token, json):
   if json:
     headers['Accept'] = 'application/json, text/html, */*'
     headers['Content-Type'] = 'application/json'
-  if token is None and config['login']['token']:
-    token = config['login']['token']
+  if token is None and token not in config['login']:
+    if config['login']['token'] is not None:
+      token = config['login']['token']
   if token:
     headers['Authorization'] = 'Token {}'.format(token)
 
