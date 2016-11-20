@@ -135,7 +135,7 @@ def get_headers(token, json):
   if json:
     headers['Accept'] = 'application/json, text/html, */*'
     headers['Content-Type'] = 'application/json'
-  if token is None and token in config['login']:
+  if token is None and 'token' in config['login']:
     token = config['login']['token']
   if token:
     headers['Authorization'] = 'Token {}'.format(token)
