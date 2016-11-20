@@ -46,6 +46,7 @@ install:
   - pip install flake8
 
 before_script:
+  - mysql -e 'SET default_storage_engine=INNODB;'
   - mysql -e 'create database test;'
 
 script:
