@@ -18,9 +18,9 @@ def update():
   if not config['settings']['update']['autocheck']:
     return
 
-    url = ("repos/{owner}/{repo}/releases/latest"
-           "").format(owner=config['git']['owner'],
-                      repo=config['git']['repository'])
+  url = ("repos/{owner}/{repo}/releases/latest"
+         "").format(owner=config['git']['owner'],
+                    repo=config['git']['repository'])
 
   try:
     r = network.query("GET", url, server=config['git']['server'], token="",
