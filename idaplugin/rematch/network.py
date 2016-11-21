@@ -122,7 +122,7 @@ def get_server(server):
      server = "http://" + server
    if not server.endswith("/"):
      server = server + "/"
-  except:
+  except Exception as e:
     import traceback
     logger.network('network').error(traceback.print_exc())
   return server
