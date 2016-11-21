@@ -104,7 +104,7 @@ def query(method, url, server=None, token=None, params=None, json=False):
     return return_obj
   except Exception as ex:
     import traceback
-    logger.network('network').error(traceback.print_exc())
+    logger.network('network').error(traceback.format_exc())
     rematch_ex = exceptions.factory(ex)
     logger('network').debug(rematch_ex)
     raise rematch_ex
@@ -124,7 +124,7 @@ def get_server(server):
      server = server + "/"
   except Exception as e:
     import traceback
-    logger.network('network').error(traceback.print_exc())
+    logger.network('network').error(traceback.format_exc())
   return server
 
 

@@ -22,10 +22,6 @@ class UnsavedIdb(RematchException):
              "please save and try again")
 
 
-class ServerNotConfiguredException(RematchException):
-  message = ("Your rematch server is not configured yet :) ")
-
-
 class QueryException(RematchException):
   message = ("Local error has occured! please report a reproducable bug if "
              "this issue persists")

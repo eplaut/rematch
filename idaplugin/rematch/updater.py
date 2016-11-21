@@ -18,12 +18,7 @@ def update():
   if not config['settings']['update']['autocheck']:
     return
 
-  if not config['login']['server']:
-    logger('updater').debug("skipping auto update because server is\
-                            not configured yet, is it your first time ?")
-    return
-
-  url = ("repos/{owner}/{repo}/releases/latest"
+    url = ("repos/{owner}/{repo}/releases/latest"
          "").format(owner=config['git']['owner'],
                     repo=config['git']['repository'])
 
