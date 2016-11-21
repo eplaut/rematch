@@ -46,7 +46,9 @@ install:
   - pip install flake8
 
 before_script:
-  - mysql -e 'create database test;'
+  - if [ ${PROJECT} = "server" ]; then
+      mysql -e 'SHOW VARIABLES LIKE "%version%";' ;
+    fi;
 
 script:
   - flake8 ./${PROJECT} --show-source --statistics
