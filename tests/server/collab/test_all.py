@@ -85,7 +85,7 @@ def assert_response(response, status):
 @pytest.mark.parametrize('model_name', collab_models.keys())
 def test_empty_lists(client, model_name):
   response = client.get('/collab/{}/'.format(model_name))
-  assert_response(response.status_code, status.HTTP_200_OK)
+  assert_response(response, status.HTTP_200_OK)
   json_response = response.json()
   assert json_response == []
 
@@ -98,7 +98,7 @@ def test_model_guest_list(client, admin_user, model_name):
   obj = obj_list[-1]
 
   response = client.get('/collab/{}/'.format(model_name))
-  assert response.status_code is status.HTTP_200_OK
+  assert_response(response, status.HTTP_200_OK)
   dct_list = response.json()
   dct = dct_list[-1]
   assert_eq(dct, obj)
@@ -110,7 +110,7 @@ def test_model_guest_creation(client, model_name, model_data):
   response = client.post('/collab/{}/'.format(model_name),
                          data=json.dumps(model_data),
                          content_type="application/json")
-  assert response.status_code == status.HTTP_401_UNAUTHORIZED
+  assert_response(response, status.HTTP_401_UNAUTHORIZED)
 
 
 @pytest.mark.django_db
@@ -123,7 +123,7 @@ def test_model_creation(client, admin_client, admin_user, model_name,
                                data=json.dumps(model_data),
                                content_type="application/json")
 
-  assert response.status_code == status.HTTP_201_CREATED
+  assert_response(response, status.HTTP_201_CREATED)
   projects_created = [response.json()]
 
   response = client.get('/collab/{}/'.format(model_name))
