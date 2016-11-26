@@ -69,8 +69,6 @@ class InstanceSerializer(serializers.ModelSerializer):
 
 
 class VectorSerializer(serializers.ModelSerializer):
-  file = serializers.ReadOnlyField()
-
   class Meta:
     model = Vector
     fields = ('id', 'file', 'instance', 'type', 'type_version', 'data')
