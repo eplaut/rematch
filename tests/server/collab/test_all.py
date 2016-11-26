@@ -23,7 +23,7 @@ collab_model_objects = {'projects': partial(Project, private=False),
                         'tasks': Task,
                         'instances': partial(Instance, offset=0),
                         'vectors': partial(Vector, type='hash', data='data',
-                                          type_version=0)}
+                                           type_version=0)}
 
 collab_model_reqs = {'projects': {},
                      'files': {},
@@ -40,7 +40,7 @@ def resolve_reqs(model_name, user):
   for req_field, req_model in model_reqs.items():
     obj = collab_model_objects[req_model]()
 
-    create_model(req_model, user, base_obj = obj)
+    create_model(req_model, user, base_obj=obj)
 
     obj.owner = user
     obj.save()
@@ -58,6 +58,7 @@ def create_model(model_name, user, base_obj=None):
 
   print(base_obj)
   return base_obj
+
 
 def setup_model(model_name, user):
   model_dict = collab_models[model_name]
